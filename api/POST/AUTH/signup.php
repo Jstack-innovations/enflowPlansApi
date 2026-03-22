@@ -80,7 +80,7 @@ if ($stmt->execute()) {
 
     $verifyLink = $baseUrl . "/verify?token=" . $token;
 
-    $subject = "Welcome to Artisan Grills! Verify Your Email";
+    $subject = "Welcome to Artisans Grilluxe! Verify Your Email";
 
     $message = '
  <html>
@@ -188,7 +188,7 @@ if ($stmt->execute()) {
       <div class="container">
         <div class="header">
           <div class="smoke"></div>
-          Artisan Grills
+          Artisanè Grilluxe
         </div>
         <div class="subheader">Curated Packages Just for You</div>
 
@@ -197,7 +197,7 @@ if ($stmt->execute()) {
 
         <div class="content">
           <p>Hi ' . htmlspecialchars($name) . ',</p>
-          <p>Welcome to <strong>Artisan Grills</strong>! We are thrilled to have you on board.</p>
+          <p>Welcome to <strong>Artisanè Grilluxe</strong>! We are thrilled to have you on board.</p>
           <p>Click the button below to verify your email and activate your account:</p>
 
           <div class="button-container">
@@ -211,11 +211,11 @@ if ($stmt->execute()) {
             <img src="https://jstack-sigma.vercel.app/artisangrill/grill.png" class="food-gif" alt="Grill" />
           </div>
 
-          <p>If you did not sign up for Artisan Grills, please ignore this email.</p>
+          <p>If you did not sign up for Artisanè Grilluxe, please ignore this email.</p>
         </div>
 
         <div class="footer">
-          Artisan Grills | Curated dining experiences | &copy; ' . date("Y") . '
+          Artisanè Grilluxe | Curated dining experiences | &copy; ' . date("Y") . '
         </div>
       </div>
     </body>
