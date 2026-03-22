@@ -107,25 +107,4 @@ echo json_encode([
     "user_id"=>$user_id
 ]);
 exit;
-?>        "success"=>false,
-        "message"=>"Verification email failed. Please try again."
-    ]);
-    exit;
-}
-
-} catch(Exception $e){
-    echo json_encode([
-        "success"=>false,
-        "message"=>"Mail server error: " . $e->getMessage()
-    ]);
-    exit;
-}
-
-/* Return response */
-echo json_encode([
-    "success"=>true,
-    "requires_verification"=>true,
-    "user_id"=>$user_id
-]);
-exit;
 ?>
