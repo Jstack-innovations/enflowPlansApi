@@ -48,9 +48,11 @@ if (
     session_unset();
     session_destroy();
     http_response_code(401);
-echo json_encode(["error" => "Unauthorized"]);
-exit;
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
+// refresh activity
 $_SESSION['last_activity'] = time();
 
 
