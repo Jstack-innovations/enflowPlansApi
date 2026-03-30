@@ -1,17 +1,14 @@
 <?php
 require_once __DIR__ . "/../../SECURE/db.php";
 
-// Set timezone
-date_default_timezone_set("Africa/Lagos");
-
-// Initialize last 7 days
+// Initialize last 7 days with zero revenue
 $dailyRevenue = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $dailyRevenue[$date] = 0;
 }
 
-// Fetch revenue from DB
+// Fetch revenue from DB for the last 7 days
 $sql = "
 SELECT 
     DATE(created_at) as order_date,
@@ -19,16 +16,17 @@ SELECT
 FROM paid_orders
 WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
 GROUP BY DATE(created_at)
-ORDER BY DATE(created_at) ASC
 ";
 
 $res = $conn->query($sql);
 
-while ($row = $res->fetch_assoc()) {
-    $dailyRevenue[$row['order_date']] = floatval($row['total']);
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $dailyRevenue[$row['order_date']] = floatval($row['total']);
+    }
 }
 
-// Format for frontend
+// Format for frontend: Mon, Tue, etc
 $output = ["dailyRevenue" => []];
 foreach ($dailyRevenue as $date => $total) {
     $dayName = date('D', strtotime($date)); // Mon, Tue, etc
@@ -40,4 +38,4 @@ foreach ($dailyRevenue as $date => $total) {
 
 // Return JSON
 header('Content-Type: application/json');
-echo json_encode($output);
+echo json_encode($output, JSON_PRETTY_PRINT);
