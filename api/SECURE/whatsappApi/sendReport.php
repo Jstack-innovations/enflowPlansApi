@@ -15,7 +15,7 @@ $toWhatsapp = "whatsapp:+2347089913116";
 $client = new Client($sid, $token);
 
 // ===== DB Connection =====
-$file = __DIR__ . '/../SECURE/db.php';
+$file = __DIR__ . '/../db.php';
 if (!file_exists($file)) die(json_encode(["error" => "db.php not found"]));
 require_once $file; // provides $conn (PDO or mysqli)
 
