@@ -12,7 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . "/../../SECURE/db.php";
 
-/* ===== LOAD MENU JSON ===== */
+// ===== GET DATE RANGE FROM QUERY =====
+$startDate = $_GET['start_date'] ?? date('Y-m-d');
+$endDate = $_GET['end_date'] ?? date('Y-m-d');
+
+// ===== LOAD MENU JSON =====
 $menuFile = __DIR__ . "/../../GET/JSON/menu.json";
 $menuJson = [];
 if (file_exists($menuFile)) {
@@ -25,7 +29,7 @@ foreach ($menuJson as $category) {
     }
 }
 
-/* ===== FETCH ORDERS + ITEMS ===== */
+// ===== FETCH ORDERS + ITEMS =====
 $sqlOrders = "
 SELECT 
     o.id AS order_id,
@@ -50,6 +54,7 @@ SELECT
     i.quantity
 FROM paid_orders o
 LEFT JOIN paid_order_items i ON o.id = i.paid_order_id
+WHERE DATE(o.created_at) BETWEEN '$startDate' AND '$endDate'
 ORDER BY o.created_at DESC
 ";
 $res = $conn->query($sqlOrders);
@@ -80,16 +85,21 @@ while ($row = $res->fetch_assoc()) {
     }
 }
 
-/* ===== DAILY REVENUE - LAST 7 DAYS ===== */
+// ===== DAILY REVENUE =====
 $dailyRevenue = [];
-for ($i = 6; $i >= 0; $i--) {
-    $date = date('Y-m-d', strtotime("-$i days"));
-    $dailyRevenue[$date] = 0;
+$period = new DatePeriod(
+    new DateTime($startDate),
+    new DateInterval('P1D'),
+    (new DateTime($endDate))->modify('+1 day')
+);
+foreach ($period as $date) {
+    $dailyRevenue[$date->format('Y-m-d')] = 0;
 }
+
 $sqlDaily = "
 SELECT DATE(created_at) as order_date, SUM(total_amount) as total
 FROM paid_orders
-WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+WHERE DATE(created_at) BETWEEN '$startDate' AND '$endDate'
 GROUP BY DATE(created_at)
 ";
 $resDaily = $conn->query($sqlDaily);
@@ -102,12 +112,12 @@ foreach ($dailyRevenue as $date => $total) {
     $dailyRevenueOutput[] = ["day" => $dayName, "revenue" => $total];
 }
 
-/* ===== HOURLY REVENUE - TODAY ===== */
+// ===== HOURLY REVENUE =====
 $hourlyRevenue = array_fill(0, 24, 0);
 $sqlHourly = "
 SELECT HOUR(created_at) as order_hour, SUM(total_amount) as total
 FROM paid_orders
-WHERE DATE(created_at) = CURDATE()
+WHERE DATE(created_at) = '$startDate'
 GROUP BY HOUR(created_at)
 ";
 $resHourly = $conn->query($sqlHourly);
@@ -121,7 +131,7 @@ foreach ($hourlyRevenue as $hour => $total) {
     $hourlyRevenueOutput[] = ["hour" => $hourFormatted, "revenue" => $total];
 }
 
-/* ===== FINAL OUTPUT ===== */
+// ===== FINAL OUTPUT =====
 echo json_encode([
     "orders" => $orders,
     "stats" => [
