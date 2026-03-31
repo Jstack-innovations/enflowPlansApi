@@ -17,7 +17,7 @@ $client = new Client($sid, $token);
 // ===== DB Connection =====
 $file = __DIR__ . '/../db.php';
 if (!file_exists($file)) die(json_encode(["error" => "db.php not found"]));
-require_once $file; // provides $conn (PDO or mysqli)
+require_once $file; // provides $conn (MySQLi)
 
 $costPercentage = 0.65; // same as your dashboard
 
@@ -29,9 +29,11 @@ try {
         WHERE status = 'paid'
     ");
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->bind_result($grossRevenue); // bind result to variable
+    $stmt->fetch();                    // fetch the value
+    $stmt->close();
 
-    $grossRevenue = $data['grossRevenue'] ?? 0;
+    $grossRevenue = $grossRevenue ?? 0;
     $estimatedCost = $grossRevenue * $costPercentage;
     $estimatedProfit = $grossRevenue - $estimatedCost;
     $profitMargin = $grossRevenue ? round(($estimatedProfit / $grossRevenue) * 100) : 0;
@@ -55,8 +57,6 @@ try {
 
     echo "Report sent successfully!";
 
-} catch (PDOException $e) {
-    echo "DB Error: " . $e->getMessage();
 } catch (Exception $e) {
-    echo "Twilio Error: " . $e->getMessage();
+    echo "Error: " . $e->getMessage();
 }
