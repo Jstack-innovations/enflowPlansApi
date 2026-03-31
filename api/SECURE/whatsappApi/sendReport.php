@@ -1,5 +1,4 @@
 <?php
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -18,17 +17,16 @@ $client = new Client($sid, $token);
 // ===== DB Connection =====
 $file = __DIR__ . '/../SECURE/db.php';
 if (!file_exists($file)) die(json_encode(["error" => "db.php not found"]));
-require_once $file; // should provide $conn (PDO or mysqli)
+require_once $file; // provides $conn (PDO or mysqli)
 
-// ===== Parameters =====
 $costPercentage = 0.65; // same as your dashboard
 
 try {
-    // Fetch today’s paid orders
+    // SUM all paid orders — no date filter
     $stmt = $conn->prepare("
         SELECT SUM(total_amount) AS grossRevenue
         FROM paid_orders
-        WHERE status = 'paid' AND DATE(created_at) = CURDATE()
+        WHERE status = 'paid'
     ");
     $stmt->execute();
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
