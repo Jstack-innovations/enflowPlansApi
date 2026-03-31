@@ -1,12 +1,10 @@
 <?php
 
-// ===== CORS HEADERS =====
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-// Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -14,39 +12,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . "/../../SECURE/db.php";
 
-// Initialize last 7 days with zero revenue
-$dailyRevenue = [];
-for ($i = 6; $i >= 0; $i--) {
-    $date = date('Y-m-d', strtotime("-$i days"));
-    $dailyRevenue[$date] = 0;
+$range = $_GET['range'] ?? 'today';
+$dateCondition = "DATE(created_at) = CURDATE()";
+
+if ($range === "yesterday") {
+    $dateCondition = "DATE(created_at) = CURDATE() - INTERVAL 1 DAY";
+}
+elseif ($range === "this_week") {
+    $dateCondition = "YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)";
+}
+elseif ($range === "last_week") {
+    $dateCondition = "YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1) - 1";
+}
+elseif ($range === "this_month") {
+    $dateCondition = "MONTH(created_at) = MONTH(CURDATE())
+                      AND YEAR(created_at) = YEAR(CURDATE())";
+}
+elseif (!empty($_GET['date'])) {
+    $safeDate = $conn->real_escape_string($_GET['date']);
+    $dateCondition = "DATE(created_at) = '$safeDate'";
 }
 
-// Fetch revenue from DB for the last 7 days
-$sql = "
-SELECT 
-    DATE(created_at) as order_date,
-    SUM(total_amount) as total
+$output = [];
+
+/* ================= REVENUE ================= */
+$revenueQuery = "
+SELECT DATE(created_at) as day,
+       SUM(total_amount) as revenue
 FROM paid_orders
-WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+WHERE $dateCondition
 GROUP BY DATE(created_at)
 ";
 
-$res = $conn->query($sql);
+$res = $conn->query($revenueQuery);
 
-if ($res) {
-    while ($row = $res->fetch_assoc()) {
-        $dailyRevenue[$row['order_date']] = floatval($row['total']);
-    }
+$output['dailyRevenue'] = [];
+while ($row = $res->fetch_assoc()) {
+    $output['dailyRevenue'][] = [
+        "day" => date("D", strtotime($row['day'])),
+        "revenue" => floatval($row['revenue'])
+    ];
 }
 
-// Format for frontend
-$output = ["dailyRevenue" => []];
+/* ================= HOURLY ================= */
+$hourQuery = "
+SELECT HOUR(created_at) as hour,
+       SUM(total_amount) as revenue
+FROM paid_orders
+WHERE $dateCondition
+GROUP BY HOUR(created_at)
+";
 
-foreach ($dailyRevenue as $date => $total) {
-    $dayName = date('D', strtotime($date));
-    $output["dailyRevenue"][] = [
-        "day" => $dayName,
-        "revenue" => $total
+$res2 = $conn->query($hourQuery);
+
+$output['hourlyRevenue'] = [];
+while ($row = $res2->fetch_assoc()) {
+    $output['hourlyRevenue'][] = [
+        "hour" => $row['hour'],
+        "revenue" => floatval($row['revenue'])
+    ];
+}
+
+/* ================= ORDER TYPES ================= */
+$typeQuery = "
+SELECT order_type, COUNT(*) as total
+FROM paid_orders
+WHERE $dateCondition
+GROUP BY order_type
+";
+
+$res3 = $conn->query($typeQuery);
+
+$output['orderTypes'] = [];
+while ($row = $res3->fetch_assoc()) {
+    $output['orderTypes'][] = [
+        "name" => $row['order_type'],
+        "value" => intval($row['total'])
     ];
 }
 
