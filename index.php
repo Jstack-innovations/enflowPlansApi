@@ -139,11 +139,6 @@ if ($uri === "/admin") {
     exit;
 }
 
-if ($uri === "/checkSession") {
-    require $basePath . "/admins/GET/check_session.php";
-    exit;
-}
-
 if ($uri === "/fetchOrder") {
     require $basePath . "/admins/GET/fetch_order.php";
     exit;
@@ -179,13 +174,8 @@ if ($uri === "/UandV") {
     exit;
 }
 
-if ($uri === "/getRevenue") {
-    require $basePath . "/admins/GET/revenue.php";
-    exit;
-}
-
-if ($uri === "/getHourlyRevenue") {
-    require $basePath . "/admins/GET/hourlyRevenue.php";
+if ($uri === "/getAnalytics") {
+    require $basePath . "/admins/GET/analytics.php";
     exit;
 }
 
