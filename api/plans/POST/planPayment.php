@@ -112,22 +112,36 @@ $subscriptionCode = generateSubscriptionCode();
 
 
 
+#################################################
+# RENEWAL DATE CALCULATION
+#################################################
+
+// Determine renewal date
+$renewalDate = null;
+
+if (stripos($plan, "annual") !== false) {
+    // Annual plan → add 1 year
+    $renewalDate = date("Y-m-d", strtotime("+1 year"));
+} elseif (stripos($plan, "monthly") !== false) {
+    // Monthly plan → add 1 month
+    $renewalDate = date("Y-m-d", strtotime("+1 month"));
+}
+
 
 #################################################
 # 💾 INSERT INTO DATABASE
 #################################################
 
+// Insert into DB (if you want to save it)
 $stmt = $conn->prepare("
     INSERT INTO subscriptions
 (fullname, username, email, phone, country, dob, gender,
- business_type, business_name, plan, amount, transaction_id, subscription_code, status)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ business_type, business_name, plan, amount, transaction_id, subscription_code, status, renewal_date)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
-$status = "active";
-
 $stmt->bind_param(
-    "ssssssssssdsss",  // 14 parameters: 13 strings/doubles + status
+    "ssssssssssdssss",
     $fullname,
     $username,
     $email,
@@ -140,13 +154,16 @@ $stmt->bind_param(
     $plan,
     $amount,
     $tx_id,
-    $subscriptionCode, // <- bind the generated subscription code here
-    $status
+    $subscriptionCode,
+    $status,
+    $renewalDate
 );
 
 $stmt->execute();
 
+// Return JSON including renewal date
 echo json_encode([
-    "status"=>"success",
-    "subscription_code"=>$subscriptionCode
+    "status" => "success",
+    "subscription_code" => $subscriptionCode,
+    "renewal_date" => $renewalDate
 ]);
