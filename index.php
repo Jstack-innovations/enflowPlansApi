@@ -264,8 +264,15 @@ if ($uri === "/adminDeleteUser") {
 }
 
 /* SUBSCRIPTION PLAN ROUTES */
+/*POST*/
 if ($uri === "/subPlans") {
     require $basePath . "/plans/POST/planPayment.php";
+    exit;
+}
+
+/*PUT*/
+if ($uri === "/countdown") {
+    require $basePath . "/plans/PUT/countdown.php";
     exit;
 }
 
