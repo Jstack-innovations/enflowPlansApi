@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../SECURE/authGuard.php";
+require_once __DIR__ . "/../../SECURE/db.php";
 
 $menuFile = __DIR__ . "/../../GET/JSON/menu.json";
 
@@ -45,16 +46,26 @@ if ($action === "add") {
     $newId = $maxId + 1;
 
     $menuJson[$category][] = [
-    "id" => $newId,
-    "name" => $data['name'] ?? "",
-    "description" => $data['description'] ?? "",
-    "price" => floatval($data['price'] ?? 0),
-    "image" => $data['image'] ?? "",
-    "tags" => $data['tags'] ?? [],
-    "badge" => $data['badge'] ?? "",
-    "available" => filter_var($data['available'] ?? true, FILTER_VALIDATE_BOOLEAN),
-    "stock" => intval($data['stock'] ?? 0)
-];
+        "id" => $newId,
+        "name" => $data['name'] ?? "",
+        "description" => $data['description'] ?? "",
+        "price" => floatval($data['price'] ?? 0),
+        "image" => $data['image'] ?? "",
+        "tags" => $data['tags'] ?? [],
+        "badge" => $data['badge'] ?? ""
+        // ❌ removed stock + available from JSON (handled in DB)
+    ];
+
+    /* ✅ INSERT STOCK + AVAILABLE INTO DB */
+    $stock = intval($data['stock'] ?? 0);
+    $available = filter_var($data['available'] ?? true, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+
+    $stmt = $conn->prepare("
+        INSERT INTO menu_stock (menu_id, stock, available)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->bind_param("iii", $newId, $stock, $available);
+    $stmt->execute();
 }
 
 if ($action === "update") {
@@ -72,14 +83,26 @@ if ($action === "update") {
                 "price" => floatval($data['price'] ?? 0),
                 "image" => $data['image'] ?? "",
                 "tags" => $data['tags'] ?? [],
-                "badge" => $data['badge'] ?? "",
-                "available" => filter_var($data['available'] ?? true, FILTER_VALIDATE_BOOLEAN),
-                "stock" => intval($data['stock'] ?? 0)
+                "badge" => $data['badge'] ?? ""
+                // ❌ removed stock + available from JSON
             ];
 
             break;
         }
     }
+
+    /* ✅ UPDATE STOCK + AVAILABLE IN DB ONLY */
+    $stock = intval($data['stock'] ?? 0);
+    $available = filter_var($data['available'] ?? true, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+
+    $stmt = $conn->prepare("
+        UPDATE menu_stock 
+        SET stock = ?, available = ? 
+        WHERE menu_id = ?
+    ");
+
+    $stmt->bind_param("iii", $stock, $available, $id);
+    $stmt->execute();
 }
 
 if ($action === "delete") {
@@ -93,6 +116,11 @@ if ($action === "delete") {
             break;
         }
     }
+
+    /* OPTIONAL: clean DB too */
+    $stmt = $conn->prepare("DELETE FROM menu_stock WHERE menu_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
 }
 
 file_put_contents($menuFile, json_encode($menuJson, JSON_PRETTY_PRINT));
