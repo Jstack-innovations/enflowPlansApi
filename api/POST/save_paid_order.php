@@ -204,16 +204,37 @@ try {
 
     foreach ($cart as $item) {
 
-        $itemStmt->bind_param(
-            "iisdi",
-            $paid_order_id,
-            $item['id'],
-            $item['name'],
-            $item['price'],
-            $item['quantity']
-        );
+    // 1️⃣ Reduce stock first
+    $updateStock = $conn->prepare("
+        UPDATE menu 
+        SET stock = stock - ? 
+        WHERE id = ? AND stock >= ?
+    ");
 
-        $itemStmt->execute();
+    $updateStock->bind_param(
+        "iii",
+        $item['quantity'],
+        $item['id'],
+        $item['quantity']
+    );
+
+    $updateStock->execute();
+
+    if ($updateStock->affected_rows === 0) {
+        throw new Exception("Not enough stock for " . $item['name']);
+    }
+
+    // 2️⃣ Then insert order item
+    $itemStmt->bind_param(
+        "iisdi",
+        $paid_order_id,
+        $item['id'],
+        $item['name'],
+        $item['price'],
+        $item['quantity']
+    );
+
+    $itemStmt->execute();
     }
 
     $conn->commit();
