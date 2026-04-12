@@ -10,9 +10,7 @@
                 "Signature",
                 "    Spicy"
             ],
-            "badge": "signature",
-            "stock": 0,
-            "available": true
+            "badge": "signature"
         },
         {
             "id": 2,
@@ -25,9 +23,7 @@
                 "Chef's Pick",
                 "Smoky"
             ],
-            "badge": "",
-            "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 3,
@@ -39,9 +35,7 @@
                 "Sharing",
                 "Premium"
             ],
-            "badge": "signature",
-                    "stock": 25,
-            "available": true
+            "badge": "signature"
         }
     ],
     "main": [
@@ -55,9 +49,7 @@
                 "Premium",
                 "Best Seller"
             ],
-            "badge": "signature",
-                    "stock": 25,
-            "available": true
+            "badge": "signature"
         },
         {
             "id": 5,
@@ -69,9 +61,7 @@
                 "Vegetarian",
                 "Seasonal"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 6,
@@ -86,9 +76,7 @@
                 "Hearty",
                 "Rich"
             ],
-            "badge": "signature",
-                    "stock": 25,
-            "available": true
+            "badge": "signature"
         }
     ],
     "regional": [
@@ -102,9 +90,7 @@
                 "Spicy",
                 "Traditional"
             ],
-            "badge": "regional",
-                    "stock": 25,
-            "available": true
+            "badge": "regional"
         },
         {
             "id": 8,
@@ -117,9 +103,7 @@
                 "Kenyan",
                 "Healthy"
             ],
-            "badge": "regional",
-                    "stock": 25,
-            "available": true
+            "badge": "regional"
         },
         {
             "id": 9,
@@ -132,9 +116,7 @@
                 "Southern",
                 "Signature"
             ],
-            "badge": "regional",
-                    "stock": 25,
-            "available": true
+            "badge": "regional"
         }
     ],
     "continental": [
@@ -149,9 +131,7 @@
                 "Spicy",
                 "Snack"
             ],
-            "badge": "continental",
-                    "stock": 25,
-            "available": true
+            "badge": "continental"
         },
         {
             "id": 11,
@@ -163,9 +143,7 @@
                 "Italian",
                 "Classic"
             ],
-            "badge": "continental",
-                    "stock": 25,
-            "available": true
+            "badge": "continental"
         },
         {
             "id": 12,
@@ -178,9 +156,7 @@
                 "Vegetarian",
                 "Noodles"
             ],
-            "badge": "continental",
-                    "stock": 25,
-            "available": true
+            "badge": "continental"
         }
     ],
     "desserts": [
@@ -194,9 +170,7 @@
                 "Signature",
                 "Made to Order"
             ],
-            "badge": "signature",
-                    "stock": 25,
-            "available": true
+            "badge": "signature"
         },
         {
             "id": 14,
@@ -207,9 +181,7 @@
             "tags": [
                 "Vegetarian",
                 "Classic"
-            ],
-                    "stock": 25,
-            "available": true
+            ]
         },
         {
             "id": 15,
@@ -222,9 +194,7 @@
                 "Creamy",
                 "Dessert"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "breakfast": [
@@ -238,9 +208,7 @@
                 "Breakfast",
                 "Classic"
             ],
-            "badge": "breakfast",
-                    "stock": 25,
-            "available": true
+            "badge": "breakfast"
         },
         {
             "id": 17,
@@ -254,9 +222,7 @@
                 "Savory",
                 "Breakfast"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 18,
@@ -270,9 +236,7 @@
                 "Grilled",
                 "Sandwich"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "drinks": [
@@ -288,9 +252,7 @@
                 "Premium",
                 "Wine"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 20,
@@ -303,9 +265,7 @@
                 "Signature",
                 "Sparkling"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 21,
@@ -318,9 +278,7 @@
                 "Smooth",
                 "Luxury"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "fastfood": [
@@ -334,9 +292,7 @@
                 "Fast Food",
                 "Popular"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 23,
@@ -348,9 +304,7 @@
                 "Spicy",
                 "Fastfood"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "combos": [
@@ -364,9 +318,7 @@
                 "Combo",
                 "Family"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 25,
@@ -378,9 +330,7 @@
                 "Combo",
                 "Couple"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "vegan": [
@@ -394,9 +344,7 @@
                 "Vegan",
                 "Healthy"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 27,
@@ -409,9 +357,7 @@
                 "Comfort",
                 "Street Food"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         }
     ],
     "kids": [
@@ -425,9 +371,7 @@
                 "Kids",
                 "Snack"
             ],
-            "badge": "",
-                    "stock": 25,
-            "available": true
+            "badge": ""
         },
         {
             "id": 29,
@@ -440,9 +384,7 @@
                 "Nigerian",
                 "Signature"
             ],
-            "badge": "Signature",
-                    "stock": 25,
-            "available": true
+            "badge": "Signature"
         }
     ]
 }
