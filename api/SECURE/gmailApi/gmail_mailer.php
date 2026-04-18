@@ -15,7 +15,13 @@ function sendEmail($to, $subject, $body) {
 
     // Load existing token
     if (file_exists($tokenPath)) {
-        $client->setAccessToken(json_decode(file_get_contents($tokenPath), true));
+
+    $token = json_decode(file_get_contents($tokenPath), true);
+
+    // 🔥 safety check
+    if (is_array($token) && isset($token['access_token'])) {
+        $client->setAccessToken($token);
+    }
     }
 
     // ✅ Auto-refresh access token if expired
