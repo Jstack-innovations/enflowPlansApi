@@ -2,7 +2,7 @@
 
 function sendEmail($to, $subject, $body) {
 
-    $apiKey = "re_VKZwjXXd_A5Bvidoiwn3NpTbMqeQRjzTA";
+   $apiKey = getenv("RESEND_API_KEY");
 
     $payload = [
         "from" => "Grillux <onboarding@resend.dev>",
