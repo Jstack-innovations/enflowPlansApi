@@ -80,10 +80,12 @@ $message = "
 
 $result = sendEmail($to, $subject, $message);
 
-if (!$result) {
+if ($result["status"] !== "success") {
+    
     echo json_encode([
         "success" => false,
-        "message" => "OTP sending failed"
+        "message" => "OTP sending failed",
+        "debug" => $result
     ]);
     exit;
 }
@@ -93,3 +95,4 @@ echo json_encode([
     "message"=>"OTP sent"
 ]);
 ?>
+
