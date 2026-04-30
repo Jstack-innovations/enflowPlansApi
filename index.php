@@ -94,6 +94,16 @@ if ($uri === "/createSession") {
     exit;
 }
 
+if ($uri === "/getSession") {
+    require $basePath . "/POST/get-session.php";
+    exit;
+}
+
+if ($uri === "/closeSession") {
+    require $basePath . "/POST/close-session.php";
+    exit;
+}
+
 if ($uri === "/saveOrder") {
     require $basePath . "/POST/save_paid_order.php";
     exit;
