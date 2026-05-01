@@ -22,15 +22,17 @@ require_once $file;
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$name     = $data['name'] ?? '';
-$phone    = $data['phone'] ?? '';
+$name     = $data['name']     ?? '';
+$phone    = $data['phone']    ?? '';
 $tableNo  = $data['table_no'] ?? '';
+$cart     = $data['cart']     ?? [];
+$amount   = $data['amount']   ?? 0;
 
 
 
 /* ===== VALIDATION ===== */
 
-if (!$name || !$phone || !$tableNo) {
+if (!$name || !$phone || !$tableNo || empty($cart)) {
     echo json_encode(["status" => "error", "message" => "Missing data"]);
     exit;
 }
@@ -104,21 +106,71 @@ try {
         INSERT INTO paid_orders
         (user_id, name, phone, table_no, order_type,
          total_amount, plate_order_no, status, session_code)
-        VALUES (?, ?, ?, ?, 'table', 0.00, ?, 'open', ?)
+        VALUES (?, ?, ?, ?, 'table', ?, ?, 'open', ?)
     ");
 
     $stmt->bind_param(
-        "isssss",
+        "issssdss",
         $user_id,
         $name,
         $phone,
         $tableNo,
+        $amount,
         $plate_no,
         $session_code
     );
 
     $stmt->execute();
     $order_id = $stmt->insert_id;
+
+    /* ===== INSERT ORDER ITEMS ===== */
+
+    $itemStmt = $conn->prepare("
+        INSERT INTO paid_order_items
+        (paid_order_id, menu_id, menu_name, price, quantity)
+        VALUES (?, ?, ?, ?, ?)
+    ");
+
+    foreach ($cart as $item) {
+
+        /* ===== REDUCE STOCK ===== */
+        $updateStock = $conn->prepare("
+            UPDATE menu_stock 
+            SET stock = stock - ?, 
+                available = CASE 
+                    WHEN stock - ? <= 0 THEN 0 
+                    ELSE 1 
+                END
+            WHERE menu_id = ? 
+            AND stock >= ?
+        ");
+
+        $updateStock->bind_param(
+            "iiii",
+            $item['quantity'],
+            $item['quantity'],
+            $item['id'],
+            $item['quantity']
+        );
+
+        $updateStock->execute();
+
+        if ($updateStock->affected_rows === 0) {
+            throw new Exception("Not enough stock for " . $item['name']);
+        }
+
+        /* ===== INSERT ITEM ===== */
+        $itemStmt->bind_param(
+            "iisdi",
+            $order_id,
+            $item['id'],
+            $item['name'],
+            $item['price'],
+            $item['quantity']
+        );
+
+        $itemStmt->execute();
+    }
 
     /* ===== BOOK THE TABLE ===== */
 
@@ -145,4 +197,5 @@ try {
         "message" => $e->getMessage()
     ]);
 }
+
 
