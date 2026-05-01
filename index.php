@@ -105,6 +105,11 @@ if ($uri === "/closeSession") {
     exit;
 }
 
+if ($uri === "/addToSession") {
+    require $basePath . "/POST/add-to-session.php";
+    exit;
+}
+
 if ($uri === "/saveOrder") {
     require $basePath . "/POST/save_paid_order.php";
     exit;
