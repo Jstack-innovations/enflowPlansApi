@@ -117,16 +117,35 @@ try {
 
         } else {
 
-            $insertStmt->bind_param(
-                "iisdi",
-                $order_id,
-                $item['id'],
-                $item['name'],
-                $item['price'],
-                $item['quantity']
-            );
+    $insertStmt->bind_param(
+        "iisdi",
+        $order_id,
+        $item['id'],
+        $item['name'],
+        $item['price'],
+        $item['quantity']
+    );
 
-            $insertStmt->execute();
+    $insertStmt->execute();
+
+    /* ===== SEND EMAIL FOR NEW ITEM ===== */
+
+    require_once __DIR__ . '/../SECURE/gmailApi/resend_mailer.php';
+
+    $body = "
+        <h2>🔥 New Item Ordered</h2>
+        <p><b>Session:</b> $session_code</p>
+        <p><b>Table Order ID:</b> $order_id</p>
+        <p><b>Item:</b> {$item['name']}</p>
+        <p><b>Qty:</b> {$item['quantity']}</p>
+        <p><b>Price:</b> {$item['price']}</p>
+    ";
+
+    sendEmail(
+        "yourrestaurant@email.com",
+        "New Order Item - {$item['name']}",
+        $body
+    );
         }
 
         $new_total += ($item['price'] * $item['quantity']);
