@@ -18,6 +18,8 @@ if (!file_exists($file)) {
 
 require_once $file;
 
+require_once __DIR__ . '/../SECURE/gmailApi/resend_mailer.php';
+
 
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -154,6 +156,40 @@ try {
     }
 
     $conn->commit();
+
+
+    /* ===== SEND EMAIL NOTIFICATION ===== */
+
+$itemsText = "";
+
+foreach ($cart as $item) {
+    $itemsText .= "
+        <li>{$item['name']} x {$item['quantity']}</li>
+    ";
+}
+
+$emailBody = "
+<h2>🔥 New Paid Order</h2>
+
+<p><b>Order ID:</b> $order_id</p>
+<p><b>Payment Ref:</b> $ref</p>
+<p><b>Table:</b> $tableNo</p>
+<p><b>Type:</b> $orderType</p>
+
+<h3>Items:</h3>
+<ul>
+    $itemsText
+</ul>
+
+<p><b>Total:</b> $$total</p>
+";
+
+sendEmail(
+    "wsamson630@gmail.com", // 👈 change to admin/kitchen email
+    "New Paid Order #$order_id",
+    $emailBody
+);
+    
 
     echo json_encode([
         "status"   => "success",
