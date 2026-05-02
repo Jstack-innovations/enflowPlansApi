@@ -28,11 +28,11 @@ try {
     /* ===== FIND OPEN SESSION ===== */
 
     $stmt = $conn->prepare("
-        SELECT id, total_amount 
-        FROM paid_orders 
-        WHERE session_code=? 
-        AND status='open'
-        LIMIT 1
+        SELECT id, total_amount, table_no
+FROM paid_orders 
+WHERE session_code=? 
+AND status='open'
+LIMIT 1
     ");
 
     $stmt->bind_param("s", $session_code);
@@ -47,6 +47,7 @@ try {
     $order = $result->fetch_assoc();
     $order_id = $order['id'];
     $current_total = $order['total_amount'];
+    $table_no = $order['table_no'];
 
     $itemStmt = $conn->prepare("
         SELECT id, quantity 
@@ -159,14 +160,15 @@ try {
 
 foreach ($emailsToSend as $item) {
 
-    $body = "
-        <h2>🔥 New Item Ordered</h2>
-        <p><b>Session:</b> $session_code</p>
-        <p><b>Order ID:</b> $order_id</p>
-        <p><b>Item:</b> {$item['name']}</p>
-        <p><b>Qty:</b> {$item['qty']}</p>
-        <p><b>Price:</b> {$item['price']}</p>
-    ";
+$body = "
+    <h2>🔥 New Item Ordered</h2>
+    <p><b>Session:</b> $session_code</p>
+    <p><b>Order ID:</b> $order_id</p>
+    <p><b>Table No:</b> $table_no</p>
+    <p><b>Item:</b> {$item['name']}</p>
+    <p><b>Qty:</b> {$item['qty']}</p>
+    <p><b>Price:</b> {$item['price']}</p>
+";
 
     sendEmail(
         "wsamson630@gmail.com",
