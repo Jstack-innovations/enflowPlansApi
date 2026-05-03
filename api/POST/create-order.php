@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -33,7 +30,6 @@ $pickup_time = $data['pickup_time'] ?? '';
 $orderType   = $data['order_type'] ?? 'table';
 $total       = $data['amount'] ?? 0;
 $cart        = $data['cart'] ?? [];
-$tx_ref      = $data['tx_ref'] ?? null;
 
 
 
@@ -112,8 +108,8 @@ try {
     $stmt = $conn->prepare("
     INSERT INTO paid_orders
     (user_id, name, phone, table_no, full_address, order_type,
-     total_amount, plate_order_no, status, pickup_time, tx_ref)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     total_amount, plate_order_no, status, pickup_time)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
     $status = "payment_pending";
 
@@ -128,17 +124,9 @@ try {
     $total,
     $plate_no,
     $status,
-    $pickup_time,
-    $tx_ref
+    $pickup_time
 );
-   // $stmt->execute();
-    if (!$stmt->execute()) {
-    echo json_encode([
-        "status" => "error",
-        "message" => $stmt->error
-    ]);
-    exit;
-    }
+    $stmt->execute();
     $paid_order_id = $stmt->insert_id;
 
     /* ===== INSERT ORDER ITEMS ===== */
