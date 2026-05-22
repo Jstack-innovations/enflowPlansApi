@@ -13,20 +13,20 @@ require_once __DIR__ . '/../../SECURE/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$fullname     = $data['fullname']       ?? '';
-$username     = $data['username']       ?? '';
-$email        = $data['email']          ?? '';
-$phone        = $data['phone']          ?? '';
-$country      = $data['country']        ?? '';
-$dob          = $data['dob']            ?? '';
-$gender       = $data['gender']         ?? '';
-$businessType = $data['businessType']   ?? '';
-$businessName = $data['businessName']   ?? '';
-$plan         = $data['plan']           ?? '';
-$amount       = $data['amount']         ?? 0;
-$tx_id        = $data['transaction_id'] ?? '';
+$fullname     = trim($data['fullname']       ?? '');
+$username     = trim($data['username']       ?? '');
+$email        = trim($data['email']          ?? '');
+$phone        = trim($data['phone']          ?? '');
+$country      = trim($data['country']        ?? '');
+$dob          = trim($data['dob']            ?? '');
+$gender       = trim($data['gender']         ?? '');
+$businessType = trim($data['businessType']   ?? '');
+$businessName = trim($data['businessName']   ?? '');
+$plan         = trim($data['plan']           ?? '');
+$amount       = (float)($data['amount']      ?? 0);   // ← cast to float for 'd' bind
+$tx_id        = trim($data['transaction_id'] ?? '');
 
-if (!$tx_id || !$email || !$amount) {
+if (!$tx_id || !$email || $amount <= 0) {
     echo json_encode(["status" => "error", "message" => "Missing required data"]);
     exit;
 }
@@ -64,30 +64,55 @@ curl_setopt_array($curl, [
     ],
 ]);
 $response = curl_exec($curl);
+
+if (curl_errno($curl)) {
+    echo json_encode(["status" => "error", "message" => "Payment gateway error: " . curl_error($curl)]);
+    curl_close($curl);
+    exit;
+}
+
 curl_close($curl);
 
 $result = json_decode($response, true);
 
-// Check transaction status
+// Check Flutterwave transaction status
 if (
-    ($result['status'] ?? '')           !== 'success' ||
-    ($result['data']['status'] ?? '')   !== 'successful'
+    ($result['status'] ?? '')         !== 'success' ||
+    ($result['data']['status'] ?? '') !== 'successful'
 ) {
     echo json_encode(["status" => "error", "message" => "Payment verification failed"]);
     exit;
 }
 
-// Check currency is NGN
+// Check currency
 if (($result['data']['currency'] ?? '') !== 'NGN') {
     echo json_encode(["status" => "error", "message" => "Invalid payment currency"]);
     exit;
 }
 
-// Check amount matches
-if ((float)$result['data']['amount'] !== (float)$amount) {
-    echo json_encode(["status" => "error", "message" => "Amount mismatch"]);
+// Check amount — allow tiny float rounding differences
+$flw_amount = (float)$result['data']['amount'];
+if (abs($flw_amount - $amount) > 0.01) {
+    echo json_encode(["status" => "error", "message" => "Amount mismatch", "expected" => $amount, "received" => $flw_amount]);
     exit;
 }
+
+
+#################################################
+# 🔁 DUPLICATE TRANSACTION GUARD
+#################################################
+
+$dupCheck = $conn->prepare("SELECT id FROM subscriptions WHERE transaction_id = ?");
+$dupCheck->bind_param("s", $tx_id);
+$dupCheck->execute();
+$dupCheck->store_result();
+
+if ($dupCheck->num_rows > 0) {
+    $dupCheck->close();
+    echo json_encode(["status" => "error", "message" => "Transaction already processed"]);
+    exit;
+}
+$dupCheck->close();
 
 
 #################################################
@@ -124,6 +149,25 @@ if (stripos($plan, "annual") !== false) {
 
 $status = "active";
 
+/*
+  Type string breakdown (15 params = 15 chars):
+  fullname      → s
+  username      → s
+  email         → s
+  phone         → s
+  country       → s
+  dob           → s
+  gender        → s
+  business_type → s
+  business_name → s
+  plan          → s
+  amount        → d  ← float/double
+  transaction_id→ s
+  subscription_code → s
+  status        → s
+  renewal_date  → s  ← pass null as string-compatible; column must be NULL-able
+*/
+
 $stmt = $conn->prepare("
     INSERT INTO subscriptions
         (fullname, username, email, phone, country, dob, gender,
@@ -132,8 +176,13 @@ $stmt = $conn->prepare("
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
+if (!$stmt) {
+    echo json_encode(["status" => "error", "message" => "Prepare failed: " . $conn->error]);
+    exit;
+}
+
 $stmt->bind_param(
-    "ssssssssssdssss",
+    "ssssssssssdssss",   // 15 chars: 10×s, 1×d, 4×s
     $fullname,
     $username,
     $email,
@@ -148,17 +197,22 @@ $stmt->bind_param(
     $tx_id,
     $subscriptionCode,
     $status,
-    $renewalDate
+    $renewalDate         // null is fine here — ensure column is NULL-able in DB
 );
 
 if (!$stmt->execute()) {
-    echo json_encode(["status" => "error", "message" => "Database error: " . $stmt->error]);
+    echo json_encode([
+        "status"  => "error",
+        "message" => "Database insert failed: " . $stmt->error,
+        "errno"   => $stmt->errno
+    ]);
     exit;
 }
+
+$stmt->close();
 
 echo json_encode([
     "status"            => "success",
     "subscription_code" => $subscriptionCode,
     "renewal_date"      => $renewalDate
 ]);
-
