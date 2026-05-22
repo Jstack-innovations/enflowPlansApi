@@ -13,29 +13,25 @@ require_once __DIR__ . '/../../SECURE/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$fullname     = trim($data['fullname']       ?? '');
-$username     = trim($data['username']       ?? '');
-$email        = trim($data['email']          ?? '');
-$phone        = trim($data['phone']          ?? '');
-$country      = trim($data['country']        ?? '');
-$dob          = trim($data['dob']            ?? '');
-$gender       = trim($data['gender']         ?? '');
-$businessType = trim($data['businessType']   ?? '');
-$businessName = trim($data['businessName']   ?? '');
-$plan         = trim($data['plan']           ?? '');
-$amount       = (float)($data['amount']      ?? 0);   // ← cast to float for 'd' bind
-$tx_id        = trim($data['transaction_id'] ?? '');
+$fullname     = $data['fullname']       ?? '';
+$username     = $data['username']       ?? '';
+$email        = $data['email']          ?? '';
+$phone        = $data['phone']          ?? '';
+$country      = $data['country']        ?? '';
+$dob          = $data['dob']            ?? '';
+$gender       = $data['gender']         ?? '';
+$businessType = $data['businessType']   ?? '';
+$businessName = $data['businessName']   ?? '';
+$plan         = $data['plan']           ?? '';
+$amount       = $data['amount']         ?? 0;
+$tx_id        = $data['transaction_id'] ?? '';
 
-if (!$tx_id || !$email || $amount <= 0) {
-    echo json_encode(["status" => "error", "message" => "Missing required data"]);
+if (!$tx_id || !$email || !$amount) {
+    echo json_encode(["status" => "error", "message" => "Missing data"]);
     exit;
 }
 
-
-#################################################
-# 🔐 FETCH SECRET KEY
-#################################################
-
+/* ===== GET SECRET KEY ===== */
 ob_start();
 include __DIR__ . '/../../SECURE/flutterwave-key.php';
 $keyOutput = ob_get_clean();
@@ -44,30 +40,25 @@ $keyData   = json_decode($keyOutput, true);
 $secretKey = $keyData['secretKey'] ?? '';
 
 if (!$secretKey) {
-    echo json_encode(["status" => "error", "message" => "Payment configuration error"]);
+    echo json_encode(["status" => "error", "message" => "Secret key not found"]);
     exit;
 }
 
-
-#################################################
-# 🔐 VERIFY TRANSACTION WITH FLUTTERWAVE (backend only)
-#################################################
-
+/* ===== VERIFY PAYMENT ===== */
 $curl = curl_init();
+
 curl_setopt_array($curl, [
     CURLOPT_URL            => "https://api.flutterwave.com/v3/transactions/$tx_id/verify",
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_CUSTOMREQUEST  => "GET",
     CURLOPT_HTTPHEADER     => [
-        "Authorization: Bearer $secretKey",
-        "Content-Type: application/json"
+        "Authorization: Bearer $secretKey"
     ],
 ]);
+
 $response = curl_exec($curl);
 
 if (curl_errno($curl)) {
-    echo json_encode(["status" => "error", "message" => "Payment gateway error: " . curl_error($curl)]);
-    curl_close($curl);
+    echo json_encode(["status" => "error", "message" => "Payment gateway error"]);
     exit;
 }
 
@@ -75,33 +66,30 @@ curl_close($curl);
 
 $result = json_decode($response, true);
 
-// Check Flutterwave transaction status
 if (
+    !$result ||
     ($result['status'] ?? '')         !== 'success' ||
     ($result['data']['status'] ?? '') !== 'successful'
 ) {
-    echo json_encode(["status" => "error", "message" => "Payment verification failed"]);
+    echo json_encode(["status" => "error", "message" => "Payment not verified"]);
     exit;
 }
 
-// Check currency
-if (($result['data']['currency'] ?? '') !== 'NGN') {
-    echo json_encode(["status" => "error", "message" => "Invalid payment currency"]);
+/* ===== AMOUNT CHECK ===== */
+$flutter_amount = (float) $result['data']['amount'];
+$expected_amount = (float) $amount;
+
+if (abs($flutter_amount - $expected_amount) > 0.01) {
+    echo json_encode([
+        "status"     => "error",
+        "message"    => "Amount mismatch",
+        "expected"   => $expected_amount,
+        "flutterwave"=> $flutter_amount
+    ]);
     exit;
 }
 
-// Check amount — allow tiny float rounding differences
-$flw_amount = (float)$result['data']['amount'];
-if (abs($flw_amount - $amount) > 0.01) {
-    echo json_encode(["status" => "error", "message" => "Amount mismatch", "expected" => $amount, "received" => $flw_amount]);
-    exit;
-}
-
-
-#################################################
-# 🔁 DUPLICATE TRANSACTION GUARD
-#################################################
-
+/* ===== DUPLICATE TRANSACTION CHECK ===== */
 $dupCheck = $conn->prepare("SELECT id FROM subscriptions WHERE transaction_id = ?");
 $dupCheck->bind_param("s", $tx_id);
 $dupCheck->execute();
@@ -109,16 +97,12 @@ $dupCheck->store_result();
 
 if ($dupCheck->num_rows > 0) {
     $dupCheck->close();
-    echo json_encode(["status" => "error", "message" => "Transaction already processed"]);
+    echo json_encode(["status" => "error", "message" => "Already processed"]);
     exit;
 }
 $dupCheck->close();
 
-
-#################################################
-# 🔑 GENERATE 21-DIGIT SUBSCRIPTION CODE
-#################################################
-
+/* ===== GENERATE SUBSCRIPTION CODE ===== */
 function generateSubscriptionCode(int $length = 21): string {
     $code = '';
     for ($i = 0; $i < $length; $i++) {
@@ -129,11 +113,7 @@ function generateSubscriptionCode(int $length = 21): string {
 
 $subscriptionCode = generateSubscriptionCode();
 
-
-#################################################
-# 📅 RENEWAL DATE CALCULATION
-#################################################
-
+/* ===== RENEWAL DATE ===== */
 if (stripos($plan, "annual") !== false) {
     $renewalDate = date("Y-m-d", strtotime("+1 year"));
 } elseif (stripos($plan, "monthly") !== false) {
@@ -142,31 +122,8 @@ if (stripos($plan, "annual") !== false) {
     $renewalDate = null;
 }
 
-
-#################################################
-# 💾 INSERT INTO DATABASE
-#################################################
-
+/* ===== INSERT INTO DATABASE ===== */
 $status = "active";
-
-/*
-  Type string breakdown (15 params = 15 chars):
-  fullname      → s
-  username      → s
-  email         → s
-  phone         → s
-  country       → s
-  dob           → s
-  gender        → s
-  business_type → s
-  business_name → s
-  plan          → s
-  amount        → d  ← float/double
-  transaction_id→ s
-  subscription_code → s
-  status        → s
-  renewal_date  → s  ← pass null as string-compatible; column must be NULL-able
-*/
 
 $stmt = $conn->prepare("
     INSERT INTO subscriptions
@@ -182,7 +139,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "ssssssssssdssss",   // 15 chars: 10×s, 1×d, 4×s
+    "ssssssssssdssss",
     $fullname,
     $username,
     $email,
@@ -193,17 +150,17 @@ $stmt->bind_param(
     $businessType,
     $businessName,
     $plan,
-    $amount,
+    $expected_amount,
     $tx_id,
     $subscriptionCode,
     $status,
-    $renewalDate         // null is fine here — ensure column is NULL-able in DB
+    $renewalDate
 );
 
 if (!$stmt->execute()) {
     echo json_encode([
         "status"  => "error",
-        "message" => "Database insert failed: " . $stmt->error,
+        "message" => "Database error: " . $stmt->error,
         "errno"   => $stmt->errno
     ]);
     exit;
