@@ -300,6 +300,12 @@ if ($uri === "/adminDeleteUser") {
 }
 
 /* SUBSCRIPTION PLAN ROUTES */
+/*GET*/
+if ($uri === "/plans") {
+    require $basePath . "/plans/GET/CORS/jsonplans.php";
+    exit;
+}
+
 /*POST*/
 if ($uri === "/subPlans") {
     require $basePath . "/plans/POST/planPayment.php";
