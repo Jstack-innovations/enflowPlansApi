@@ -107,54 +107,81 @@ if (stripos($plan, "annual") !== false) {
     $zaraCredits = 100;
 }
 
-/* ===== INSERT ===== */
-$status = "active";
+/* ===== CHECK IF USER ALREADY EXISTS (was on trial) ===== */
+$checkStmt = $conn->prepare("SELECT id FROM subscriptions WHERE LOWER(email) = LOWER(?) LIMIT 1");
+$checkStmt->bind_param("s", $email);
+$checkStmt->execute();
+$checkStmt->store_result();
 
-$stmt = $conn->prepare("
-    INSERT INTO subscriptions (
-        fullname,
-        username,
-        email,
-        phone,
-        country,
-        dob,
-        gender,
-        business_type,
-        business_name,
-        plan,
-        amount,
-        transaction_id,
-        subscription_code,
-        status,
-        renewal_date,
-        zara_credits
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-");
+if ($checkStmt->num_rows > 0) {
+    // ── Existing user (trial → paid) — UPDATE their row ──
+    $updateStmt = $conn->prepare("
+        UPDATE subscriptions SET
+            fullname          = ?,
+            username          = ?,
+            phone             = ?,
+            country           = ?,
+            dob               = ?,
+            gender            = ?,
+            business_type     = ?,
+            business_name     = ?,
+            plan              = ?,
+            amount            = ?,
+            transaction_id    = ?,
+            subscription_code = ?,
+            status            = 'active',
+            renewal_date      = ?,
+            zara_credits      = ?,
+            zara_credits_used = 0
+        WHERE LOWER(email) = LOWER(?)
+    ");
+    $updateStmt->bind_param(
+        "sssssssssdsssiss",
+        $fullname,
+        $username,
+        $phone,
+        $country,
+        $dob,
+        $gender,
+        $businessType,
+        $businessName,
+        $plan,
+        $amount,
+        $tx_id,
+        $subscriptionCode,
+        $renewalDate,
+        $zaraCredits,
+        $email
+    );
 
-$stmt->bind_param(
-    "ssssssssssdssssi",
-    $fullname,
-    $username,
-    $email,
-    $phone,
-    $country,
-    $dob,
-    $gender,
-    $businessType,
-    $businessName,
-    $plan,
-    $amount,
-    $tx_id,
-    $subscriptionCode,
-    $status,
-    $renewalDate,
-    $zaraCredits
-);
+    if (!$updateStmt->execute()) {
+        echo json_encode(["status" => "error", "message" => $updateStmt->error]);
+        exit;
+    }
 
-if (!$stmt->execute()) {
-    echo json_encode(["status" => "error", "message" => $stmt->error]);
-    exit;
+} else {
+    // ── Brand new user — INSERT fresh row ──
+    $stmt = $conn->prepare("
+        INSERT INTO subscriptions (
+            fullname, username, email, phone, country,
+            dob, gender, business_type, business_name,
+            plan, amount, transaction_id, subscription_code,
+            status, renewal_date, zara_credits
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)
+    ");
+    $stmt->bind_param(
+        "ssssssssssdsssi",
+        $fullname, $username, $email, $phone, $country,
+        $dob, $gender, $businessType, $businessName,
+        $plan, $amount, $tx_id, $subscriptionCode,
+        $renewalDate, $zaraCredits
+    );
+
+    if (!$stmt->execute()) {
+        echo json_encode(["status" => "error", "message" => $stmt->error]);
+        exit;
+    }
 }
 
 echo json_encode([
