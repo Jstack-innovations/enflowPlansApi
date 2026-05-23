@@ -15,7 +15,7 @@ session_start();
 $allowedOrigins = [
     "http://localhost:5173",
     "https://artisangrills-production.up.railway.app",
-    "https://artisangrills-production.up.railway.app",
+    "https://artisangrills.onrender.com",
     "https://admin-artisangrilluxe.vercel.app"
 ];
 
