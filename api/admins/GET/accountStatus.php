@@ -2,32 +2,14 @@
 /**
  * Enflow Account Status API
  * Endpoint: GET /api/accountStatus
- * Returns: name, email, plan, status, dates, zara credits
  */
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+require_once __DIR__ . "/../../SECURE/authGuard.php";
+require_once __DIR__ . "/../../SECURE/config.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit();
-}
+$adminId = (int) $_SESSION["admin_id"];
 
-require_once __DIR__ . '/../../SECURE/config.php';
-session_start();
-
-// ── Auth check — must be logged in ──
-if (empty($_SESSION["user_id"])) {
-    http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Unauthorized."]);
-    exit();
-}
-
-$userId = (int) $_SESSION["user_id"];
-
-// ── Fetch user row ──
+// ── Fetch user row from enflow_users using admin_id ──
 $stmt = $pdo->prepare("
     SELECT name, email, selected_plan, trial_started_at, trial_ends_at,
            is_subscribed, subscription_plan, subscription_start, subscription_end,
@@ -36,7 +18,7 @@ $stmt = $pdo->prepare("
     WHERE id = :id
     LIMIT 1
 ");
-$stmt->execute([":id" => $userId]);
+$stmt->execute([":id" => $adminId]);
 $user = $stmt->fetch();
 
 if (!$user) {
@@ -69,4 +51,3 @@ echo json_encode([
     "zara_credits"       => (int) ($user["zara_credits"] ?? 1000),
     "zara_credits_used"  => (int) ($user["zara_credits_used"] ?? 0),
 ]);
-
