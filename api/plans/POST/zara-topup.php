@@ -3,6 +3,7 @@
 require_once __DIR__ . "/../../SECURE/authGuard.php";
 require_once __DIR__ . "/../../SECURE/config.php";
 
+// ── 1. Auth — session only, never trust frontend ───────────
 $email = $_SESSION["admin_email"] ?? "";
 
 if (!$email) {
@@ -11,20 +12,21 @@ if (!$email) {
     exit();
 }
 
-$body = json_decode(file_get_contents("php://input"), true);
-
-$tx_ref        = trim($body["tx_ref"] ?? "");
+// ── 2. Read body — only tx_ref + transaction_id needed ─────
+//    pack_id is accepted but credits count is ALWAYS taken
+//    from the server-side $PACKS table, never from the client.
+$body           = json_decode(file_get_contents("php://input"), true);
+$tx_ref         = trim($body["tx_ref"]         ?? "");
 $transaction_id = trim($body["transaction_id"] ?? "");
-$pack_id       = trim($body["pack_id"] ?? "");
-$credits       = (int) ($body["credits"] ?? 0);
+$pack_id        = trim($body["pack_id"]        ?? "");
 
-if (!$tx_ref || !$transaction_id || !$pack_id || $credits <= 0) {
+if (!$tx_ref || !$transaction_id || !$pack_id) {
     http_response_code(400);
     echo json_encode(["status" => "error", "message" => "Missing required fields."]);
     exit();
 }
 
-// ── Expected pack prices (server-side validation) ──────────
+// ── 3. Server-side pack registry — source of truth ─────────
 $PACKS = [
     "starter"    => ["credits" => 500,   "price" => 52250],
     "basic"      => ["credits" => 1000,  "price" => 101200],
@@ -44,22 +46,39 @@ if (!isset($PACKS[$pack_id])) {
 $expectedCredits = $PACKS[$pack_id]["credits"];
 $expectedPrice   = $PACKS[$pack_id]["price"];
 
-// ── Prevent duplicate processing ──────────────────────────
-$check = $pdo->prepare("SELECT id FROM zara_topup_logs WHERE tx_ref = :tx_ref LIMIT 1");
-$check->execute([":tx_ref" => $tx_ref]);
-if ($check->fetch()) {
+// ── 4. Duplicate transaction guard ─────────────────────────
+//    Uses the existing `subscriptions` table transaction_id column
+//    to detect replays — no extra table needed.
+$dupCheck = $pdo->prepare("
+    SELECT id FROM subscriptions
+    WHERE transaction_id = :transaction_id
+    LIMIT 1
+");
+$dupCheck->execute([":transaction_id" => $transaction_id]);
+if ($dupCheck->fetch()) {
     http_response_code(409);
     echo json_encode(["status" => "error", "message" => "Transaction already processed."]);
     exit();
 }
 
-// ── Verify with Flutterwave ────────────────────────────────
-$FLW_SECRET = "YOUR_FLUTTERWAVE_SECRET_KEY";
+// ── 5. Verify with Flutterwave — all server-side ───────────
+ob_start();
+include __DIR__ . '/../../SECURE/flutterwave-key.php';
+$keyOutput  = ob_get_clean();
+$keyData    = json_decode($keyOutput, true);
+$FLW_SECRET = $keyData['secretKey'] ?? '';
+
+if (!$FLW_SECRET) {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "Secret key not found."]);
+    exit();
+}
 
 $ch = curl_init("https://api.flutterwave.com/v3/transactions/{$transaction_id}/verify");
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => [
+    CURLOPT_TIMEOUT        => 15,
+    CURLOPT_HTTPHEADER     => [
         "Authorization: Bearer {$FLW_SECRET}",
         "Content-Type: application/json",
     ],
@@ -74,59 +93,60 @@ if ($info["http_code"] !== 200) {
     exit();
 }
 
-$flw = json_decode($res, true);
+$flw    = json_decode($res, true);
 $txData = $flw["data"] ?? null;
 
+// Every field verified server-side:
+// - Flutterwave status must be successful
+// - tx_ref must match what we sent
+// - customer email must match the session email
+// - amount paid must be >= expected pack price
+// - currency must be NGN
 if (
     !$txData ||
-    $flw["status"] !== "success" ||
-    $txData["status"] !== "successful" ||
-    $txData["tx_ref"] !== $tx_ref ||
-    strtolower($txData["customer"]["email"]) !== strtolower($email) ||
-    (int) $txData["amount"] < $expectedPrice ||
-    strtoupper($txData["currency"]) !== "NGN"
+    ($flw["status"]   ?? "")                              !== "success"     ||
+    ($txData["status"] ?? "")                             !== "successful"  ||
+    ($txData["tx_ref"] ?? "")                             !== $tx_ref       ||
+    strtolower($txData["customer"]["email"] ?? "")        !== strtolower($email) ||
+    (float) ($txData["amount"] ?? 0)                      < $expectedPrice  ||
+    strtoupper($txData["currency"] ?? "")                 !== "NGN"
 ) {
     http_response_code(402);
     echo json_encode(["status" => "error", "message" => "Payment verification failed."]);
     exit();
 }
 
-// ── Credit the user ────────────────────────────────────────
+// ── 6. Credit user inside subscriptions table ──────────────
 $pdo->beginTransaction();
 
 try {
-    // Add credits to subscription
+    // Add credits to the user's most recent subscription row
     $update = $pdo->prepare("
         UPDATE subscriptions
-        SET zara_credits = zara_credits + :credits
+        SET
+            zara_credits    = zara_credits + :credits,
+            transaction_id  = :transaction_id
         WHERE LOWER(email) = LOWER(:email)
         ORDER BY created_at DESC
         LIMIT 1
     ");
-    $update->execute([":credits" => $expectedCredits, ":email" => $email]);
-
-    // Log the transaction
-    $log = $pdo->prepare("
-        INSERT INTO zara_topup_logs
-            (email, tx_ref, transaction_id, pack_id, credits, amount, created_at)
-        VALUES
-            (:email, :tx_ref, :transaction_id, :pack_id, :credits, :amount, NOW())
-    ");
-    $log->execute([
-        ":email"          => $email,
-        ":tx_ref"         => $tx_ref,
-        ":transaction_id" => $transaction_id,
-        ":pack_id"        => $pack_id,
+    $update->execute([
         ":credits"        => $expectedCredits,
-        ":amount"         => $txData["amount"],
+        ":transaction_id" => $transaction_id,
+        ":email"          => $email,
     ]);
+
+    if ($update->rowCount() === 0) {
+        throw new Exception("No subscription row found for this email.");
+    }
 
     $pdo->commit();
 
     echo json_encode([
         "status"  => "success",
-        "message" => "Credits added.",
+        "message" => "Credits added successfully.",
         "credits" => $expectedCredits,
+        "pack"    => $pack_id,
     ]);
 
 } catch (Exception $e) {
@@ -134,4 +154,3 @@ try {
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "DB error: " . $e->getMessage()]);
 }
-
