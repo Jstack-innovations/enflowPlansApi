@@ -1,12 +1,22 @@
 <?php
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 
-require_once __DIR__ . "/../../../SECURE/config.php";
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
-$email = $_SESSION["admin_email"] ?? "";
+require_once __DIR__ . "/../../SECURE/config.php";
+
+$body  = json_decode(file_get_contents("php://input"), true);
+$email = trim($body["email"] ?? "");
 
 if (!$email) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Not authenticated."]);
+    echo json_encode(["status" => "error", "message" => "No email provided"]);
     exit();
 }
 
@@ -23,7 +33,7 @@ $stmt = $pdo->prepare("
     LIMIT 1
 ");
 $stmt->execute([":email" => $email]);
-$user = $stmt->fetch();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
     http_response_code(404);
@@ -33,22 +43,20 @@ if (!$user) {
 
 $status = $user["status"];
 
-// Auto-expire trial
 if ($status === "trial" && $user["trial_ends_at"]) {
     $trialEnd = new DateTime($user["trial_ends_at"]);
     if ($trialEnd <= $now) {
-        $pdo->prepare("UPDATE subscriptions SET status = 'expired' WHERE id = :id")
-            ->execute([":id" => $user["id"]]);
+        $pdo->prepare("UPDATE subscriptions SET status = 'expired' WHERE email = :email")
+            ->execute([":email" => $email]);
         $status = "expired";
     }
 }
 
-// Auto-expire subscription
 if ($status === "active" && $user["renewal_date"]) {
     $renewalDate = new DateTime($user["renewal_date"]);
     if ($renewalDate <= $now) {
-        $pdo->prepare("UPDATE subscriptions SET status = 'expired' WHERE id = :id")
-            ->execute([":id" => $user["id"]]);
+        $pdo->prepare("UPDATE subscriptions SET status = 'expired' WHERE email = :email")
+            ->execute([":email" => $email]);
         $status = "expired";
     }
 }
