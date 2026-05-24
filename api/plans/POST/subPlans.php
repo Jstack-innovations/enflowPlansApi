@@ -100,12 +100,18 @@ if (stripos($plan, "annual") !== false) {
     $renewalDate = date("Y-m-d", strtotime("+1 month"));
 }
 
-/* ===== ZARA CREDITS ===== */
-if (stripos($plan, "annual") !== false) {
+
+/* ===== ZARA CREDITS BASED ON PLAN ===== */
+if (stripos($plan, "zara + app") !== false || stripos($plan, "zara+app") !== false) {
     $zaraCredits = 1500;
+} elseif (stripos($plan, "enterprise") !== false) {
+    $zaraCredits = 3000;
+} elseif (stripos($plan, "zara") !== false) {
+    $zaraCredits = 1000;
 } else {
-    $zaraCredits = 100;
+    $zaraCredits = 0; // Web only — no Zara
 }
+
 
 /* ===== CHECK IF USER ALREADY EXISTS (was on trial) ===== */
 $checkStmt = $conn->prepare("SELECT id FROM subscriptions WHERE LOWER(email) = LOWER(?) LIMIT 1");
