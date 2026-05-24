@@ -110,7 +110,7 @@ $txData = $flw["data"] ?? null;
 // ── 7. Validate every field ────────────────────────────────
 $checks = [
     "flw_status"       => ($flw["status"]             ?? "") === "success",
-    "tx_status"        => ($txData["status"]           ?? "") === "successful",
+    "tx_status" => in_array($txData["status"] ?? "", ["successful", "completed"]),
     "tx_ref_match"     => ($txData["tx_ref"]           ?? "") === $tx_ref,
     "email_match"      => strtolower($txData["customer"]["email"] ?? "") === strtolower($email),
     "amount_ok"        => (float)($txData["amount"]    ?? 0)  >= $expectedPrice,
