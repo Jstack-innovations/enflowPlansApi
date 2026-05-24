@@ -47,10 +47,8 @@ $expectedCredits = $PACKS[$pack_id]["credits"];
 $expectedPrice   = $PACKS[$pack_id]["price"];
 
 // ── 4. Duplicate transaction guard ─────────────────────────
-//    Uses the existing `subscriptions` table transaction_id column
-//    to detect replays — no extra table needed.
 $dupCheck = $pdo->prepare("
-    SELECT id FROM subscriptions
+    SELECT id FROM zara_topup_logs
     WHERE transaction_id = :transaction_id
     LIMIT 1
 ");
@@ -123,22 +121,32 @@ try {
     // Add credits to the user's most recent subscription row
     $update = $pdo->prepare("
         UPDATE subscriptions
-        SET
-            zara_credits    = zara_credits + :credits,
-            transaction_id  = :transaction_id
+        SET zara_credits = zara_credits + :credits
         WHERE LOWER(email) = LOWER(:email)
         ORDER BY created_at DESC
         LIMIT 1
     ");
     $update->execute([
-        ":credits"        => $expectedCredits,
-        ":transaction_id" => $transaction_id,
-        ":email"          => $email,
+        ":credits" => $expectedCredits,
+        ":email"   => $email,
     ]);
 
     if ($update->rowCount() === 0) {
         throw new Exception("No subscription row found for this email.");
     }
+
+    // Log to prevent replays
+    $log = $pdo->prepare("
+        INSERT INTO zara_topup_logs (email, transaction_id, pack_id, credits, amount)
+        VALUES (:email, :transaction_id, :pack_id, :credits, :amount)
+    ");
+    $log->execute([
+        ":email"          => $email,
+        ":transaction_id" => $transaction_id,
+        ":pack_id"        => $pack_id,
+        ":credits"        => $expectedCredits,
+        ":amount"         => $txData["amount"],
+    ]);
 
     $pdo->commit();
 
