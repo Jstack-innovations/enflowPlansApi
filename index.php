@@ -14,6 +14,17 @@ if ($uri === '' || $uri === '/') {
 }
 
 /* SUBSCRIPTION PLAN ROUTES */
+/* SECURE ROUTES */
+if ($uri === "/flutterwave") {
+    require $basePath . "/SECURE/flutterwave-key.php";
+    exit;
+}
+
+if ($uri === "/sendTelegramReport") {
+    require $basePath . "/SECURE/sendTelegramReport.php";
+    exit;
+}
+
 /*GET*/
 if ($uri === "/subscriptionContent") {
     require $basePath . "/plans/GET/CORS/jsonplans.php";
