@@ -36,6 +36,12 @@ if ($uri === "/settings") {
     exit;
 }
 
+if ($uri === "/accountStatus") {
+    require $basePath . "/plans/GET/CORS/accountStatus.php";
+    exit;
+}
+
+
 /*POST*/
 if ($uri === "/verifyAccess") {
     require $basePath . "/plans/POST/verifyAccess.php";
