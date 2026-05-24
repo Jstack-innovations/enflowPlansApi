@@ -48,6 +48,11 @@ if ($uri === "/verifyAccess") {
     exit;
 }
 
+if ($uri === "/deductCredits") {
+    require $basePath . "/plans/POST/deductCredits.php";
+    exit;
+}
+
 if ($uri === "/subPlans") {
     require $basePath . "/plans/POST/subPlans.php";
     exit;
