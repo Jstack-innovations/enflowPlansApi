@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../SECURE/authGuard.php";
+//require_once __DIR__ . "/../../SECURE/authGuard.php";
 require_once __DIR__ . "/../../SECURE/config.php";
 
 $email = $_SESSION["admin_email"] ?? "";
