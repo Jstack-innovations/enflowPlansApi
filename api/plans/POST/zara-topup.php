@@ -134,12 +134,16 @@ if (!$allPassed) {
     exit();
 }
 
-// ── 7. Get email from Flutterwave — never from client ──────
+// ── 7. Get email ──────────────────────────────────────────
 $email = $txData["customer"]["email"] ?? "";
+
+if (!$email || str_contains($email, 'ravesb_')) {
+    $email = trim($body["email"] ?? "");
+}
 
 if (!$email) {
     http_response_code(400);
-    echo json_encode(["status" => "error", "step" => "email", "message" => "No email in transaction."]);
+    echo json_encode(["status" => "error", "step" => "email", "message" => "No email found."]);
     exit();
 }
 
