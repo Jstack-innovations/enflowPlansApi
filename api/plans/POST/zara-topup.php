@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . "/../../SECURE/config.php";
 
-// ── 1. Read body ───────────────────────────────────────────
 $body           = json_decode(file_get_contents("php://input"), true);
 $tx_ref         = trim($body["tx_ref"]         ?? "");
 $transaction_id = trim($body["transaction_id"] ?? "");
 $pack_id        = trim($body["pack_id"]        ?? "");
+$email_from_local = trim($body["email"]        ?? "");
 
 if (!$tx_ref || !$transaction_id || !$pack_id) {
     http_response_code(400);
@@ -23,12 +23,16 @@ if (!$tx_ref || !$transaction_id || !$pack_id) {
         "status"  => "error",
         "step"    => "body",
         "message" => "Missing fields.",
-        "got"     => ["tx_ref" => $tx_ref, "transaction_id" => $transaction_id, "pack_id" => $pack_id],
+        "got"     => [
+            "tx_ref"         => $tx_ref,
+            "transaction_id" => $transaction_id,
+            "pack_id"        => $pack_id,
+            "email"          => $email_from_local,
+        ],
     ]);
     exit();
 }
 
-// ── 2. Pack registry — server is source of truth ──────────
 $PACKS = [
     "starter"    => ["credits" => 500,   "price" => 52250],
     "basic"      => ["credits" => 1000,  "price" => 101200],
@@ -48,7 +52,6 @@ if (!isset($PACKS[$pack_id])) {
 $expectedCredits = $PACKS[$pack_id]["credits"];
 $expectedPrice   = $PACKS[$pack_id]["price"];
 
-// ── 3. Duplicate check ─────────────────────────────────────
 try {
     $dupCheck = $pdo->prepare("SELECT id FROM zara_topup_logs WHERE transaction_id = :transaction_id LIMIT 1");
     $dupCheck->execute([":transaction_id" => $transaction_id]);
@@ -63,7 +66,6 @@ try {
     exit();
 }
 
-// ── 4. Get Flutterwave secret key ──────────────────────────
 ob_start();
 include __DIR__ . '/../../SECURE/flutterwave-key.php';
 $keyOutput  = ob_get_clean();
@@ -76,7 +78,6 @@ if (!$FLW_SECRET) {
     exit();
 }
 
-// ── 5. Verify with Flutterwave ─────────────────────────────
 $ch = curl_init("https://api.flutterwave.com/v3/transactions/{$transaction_id}/verify");
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
@@ -105,7 +106,6 @@ if ($curlErr || $httpCode !== 200) {
 $flw    = json_decode($res, true);
 $txData = $flw["data"] ?? null;
 
-// ── 6. Validate payment ────────────────────────────────────
 $checks = [
     "flw_status"   => ($flw["status"]    ?? "") === "success",
     "tx_status"    => in_array($txData["status"] ?? "", ["successful", "completed"]),
@@ -123,22 +123,20 @@ if (!$allPassed) {
         "step"    => "flw_validation",
         "checks"  => $checks,
         "flw_raw" => [
-            "flw_status" => $flw["status"]    ?? null,
-            "tx_status"  => $txData["status"] ?? null,
-            "tx_ref"     => $txData["tx_ref"] ?? null,
-            "amount"     => $txData["amount"] ?? null,
-            "currency"   => $txData["currency"] ?? null,
+            "flw_status"     => $flw["status"]      ?? null,
+            "tx_status"      => $txData["status"]   ?? null,
+            "tx_ref"         => $txData["tx_ref"]   ?? null,
+            "amount"         => $txData["amount"]   ?? null,
+            "currency"       => $txData["currency"] ?? null,
             "expected_price" => $expectedPrice,
         ],
     ]);
     exit();
 }
 
-// ── 7. Get email ──────────────────────────────────────────
 $email = $txData["customer"]["email"] ?? "";
-
 if (!$email || str_contains($email, 'ravesb_')) {
-    $email = trim($body["email"] ?? "");
+    $email = $email_from_local;
 }
 
 if (!$email) {
@@ -147,7 +145,6 @@ if (!$email) {
     exit();
 }
 
-// ── 8. Credit user ─────────────────────────────────────────
 $pdo->beginTransaction();
 
 try {
@@ -158,10 +155,7 @@ try {
         ORDER BY created_at DESC
         LIMIT 1
     ");
-    $update->execute([
-        ":credits" => $expectedCredits,
-        ":email"   => $email,
-    ]);
+    $update->execute([":credits" => $expectedCredits, ":email" => $email]);
 
     if ($update->rowCount() === 0) {
         throw new Exception("No subscription found for email: $email");
