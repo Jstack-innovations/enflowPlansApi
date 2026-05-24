@@ -26,6 +26,11 @@ if ($uri === "/settings") {
 }
 
 /*POST*/
+if ($uri === "/verifyAccess") {
+    require $basePath . "/plans/POST/verifyAccess.php";
+    exit;
+}
+
 if ($uri === "/subPlans") {
     require $basePath . "/plans/POST/subPlans.php";
     exit;
