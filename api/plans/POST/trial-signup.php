@@ -69,20 +69,20 @@ $token            = bin2hex(random_bytes(32));
 $subscriptionCode = "TRIAL-" . strtoupper(substr(md5(uniqid()), 0, 10));
 
 try {
-    $stmt = $pdo->prepare("
-        INSERT INTO subscriptions (
-            name, fullname, email, phone, plan,
-            status, trial_started_at, trial_ends_at,
-            onboarding_token, subscription_code,
-            zara_credits, zara_credits_used, created_at
-        )
-        VALUES (
-            :name, :name, :email, :phone, :plan,
-            'trial', :trial_start, :trial_end,
-            :token, :sub_code,
-            :zara_credits, 0, NOW()
-        )
-    ");
+$stmt = $pdo->prepare("
+    INSERT INTO subscriptions (
+        fullname, email, phone, plan,
+        status, trial_started_at, trial_ends_at,
+        onboarding_token, subscription_code,
+        zara_credits, zara_credits_used, created_at
+    )
+    VALUES (
+        :name, :email, :phone, :plan,
+        'trial', :trial_start, :trial_end,
+        :token, :sub_code,
+        :zara_credits, 0, NOW()
+    )
+");
     $stmt->execute([
         ":name"         => $name,
         ":email"        => $email,
