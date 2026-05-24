@@ -11,16 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . "/../../SECURE/config.php";
 
-// ── 1. Auth ────────────────────────────────────────────────
-$email = $_SESSION["admin_email"] ?? "";
-
-if (!$email) {
-    http_response_code(401);
-    echo json_encode(["status" => "error", "step" => "auth", "message" => "Not authenticated."]);
-    exit();
-}
-
-// ── 2. Read body ───────────────────────────────────────────
+// ── 1. Read body ───────────────────────────────────────────
 $body           = json_decode(file_get_contents("php://input"), true);
 $tx_ref         = trim($body["tx_ref"]         ?? "");
 $transaction_id = trim($body["transaction_id"] ?? "");
@@ -37,7 +28,7 @@ if (!$tx_ref || !$transaction_id || !$pack_id) {
     exit();
 }
 
-// ── 3. Pack registry ───────────────────────────────────────
+// ── 2. Pack registry — server is source of truth ──────────
 $PACKS = [
     "starter"    => ["credits" => 500,   "price" => 52250],
     "basic"      => ["credits" => 1000,  "price" => 101200],
@@ -57,7 +48,7 @@ if (!isset($PACKS[$pack_id])) {
 $expectedCredits = $PACKS[$pack_id]["credits"];
 $expectedPrice   = $PACKS[$pack_id]["price"];
 
-// ── 4. Duplicate check ─────────────────────────────────────
+// ── 3. Duplicate check ─────────────────────────────────────
 try {
     $dupCheck = $pdo->prepare("SELECT id FROM zara_topup_logs WHERE transaction_id = :transaction_id LIMIT 1");
     $dupCheck->execute([":transaction_id" => $transaction_id]);
@@ -67,13 +58,12 @@ try {
         exit();
     }
 } catch (Exception $e) {
-    // Table might not exist yet
     http_response_code(500);
     echo json_encode(["status" => "error", "step" => "duplicate_check", "message" => $e->getMessage()]);
     exit();
 }
 
-// ── 5. Get Flutterwave secret key ──────────────────────────
+// ── 4. Get Flutterwave secret key ──────────────────────────
 ob_start();
 include __DIR__ . '/../../SECURE/flutterwave-key.php';
 $keyOutput  = ob_get_clean();
@@ -86,7 +76,7 @@ if (!$FLW_SECRET) {
     exit();
 }
 
-// ── 6. Verify with Flutterwave ─────────────────────────────
+// ── 5. Verify with Flutterwave ─────────────────────────────
 $ch = curl_init("https://api.flutterwave.com/v3/transactions/{$transaction_id}/verify");
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
@@ -115,14 +105,13 @@ if ($curlErr || $httpCode !== 200) {
 $flw    = json_decode($res, true);
 $txData = $flw["data"] ?? null;
 
-// ── 7. Validate every field ────────────────────────────────
+// ── 6. Validate payment ────────────────────────────────────
 $checks = [
-    "flw_status"       => ($flw["status"]             ?? "") === "success",
-    "tx_status" => in_array($txData["status"] ?? "", ["successful", "completed"]),
-    "tx_ref_match"     => ($txData["tx_ref"]           ?? "") === $tx_ref,
-    "email_match"      => strtolower($txData["customer"]["email"] ?? "") === strtolower($email),
-    "amount_ok"        => (float)($txData["amount"]    ?? 0)  >= $expectedPrice,
-    "currency_ok"      => strtoupper($txData["currency"] ?? "") === "NGN",
+    "flw_status"   => ($flw["status"]    ?? "") === "success",
+    "tx_status"    => in_array($txData["status"] ?? "", ["successful", "completed"]),
+    "tx_ref_match" => ($txData["tx_ref"] ?? "") === $tx_ref,
+    "amount_ok"    => (float)($txData["amount"]   ?? 0) >= $expectedPrice,
+    "currency_ok"  => strtoupper($txData["currency"] ?? "") === "NGN",
 ];
 
 $allPassed = !in_array(false, $checks, true);
@@ -134,16 +123,23 @@ if (!$allPassed) {
         "step"    => "flw_validation",
         "checks"  => $checks,
         "flw_raw" => [
-            "status"   => $flw["status"]              ?? null,
-            "tx_status"=> $txData["status"]            ?? null,
-            "tx_ref"   => $txData["tx_ref"]            ?? null,
-            "email"    => $txData["customer"]["email"] ?? null,
-            "amount"   => $txData["amount"]            ?? null,
-            "currency" => $txData["currency"]          ?? null,
-            "expected_price"  => $expectedPrice,
-            "session_email"   => $email,
+            "flw_status" => $flw["status"]    ?? null,
+            "tx_status"  => $txData["status"] ?? null,
+            "tx_ref"     => $txData["tx_ref"] ?? null,
+            "amount"     => $txData["amount"] ?? null,
+            "currency"   => $txData["currency"] ?? null,
+            "expected_price" => $expectedPrice,
         ],
     ]);
+    exit();
+}
+
+// ── 7. Get email from Flutterwave — never from client ──────
+$email = $txData["customer"]["email"] ?? "";
+
+if (!$email) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "step" => "email", "message" => "No email in transaction."]);
     exit();
 }
 
@@ -164,7 +160,7 @@ try {
     ]);
 
     if ($update->rowCount() === 0) {
-        throw new Exception("No subscription row found for email: $email");
+        throw new Exception("No subscription found for email: $email");
     }
 
     $log = $pdo->prepare("
