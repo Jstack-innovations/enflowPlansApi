@@ -249,7 +249,7 @@ $emailBody = "
   <!-- HEADER -->
   <tr>
     <td align='center' style='background:#1a1814;padding:48px 40px 40px;'>
-      <img src='https://getenflowai.online/assets/logo.png' width='140' style='height:auto;margin-bottom:28px;' />
+      <img src='https://plans.getenflowai.online/assets/logo.png' width='140' style='height:auto;margin-bottom:28px;' />
       <div style='background:rgba(160,120,72,0.12);border:1px solid rgba(201,168,112,0.28);border-radius:100px;padding:7px 18px;display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#c9a870;margin-bottom:24px;'>
         ✦ &nbsp; Subscription Activated
       </div>
