@@ -246,7 +246,7 @@ $emailBody = <<<HTML
       <td class="hero-block" align="center" style="background:#1a1814;padding:52px 48px 48px;">
         <table border="0" cellspacing="0" cellpadding="0" style="margin-bottom:32px;">
           <tr><td align="center">
-            <img src="https://getenflowai.online/assets/logo.png" alt="EnflowAI" width="140" style="display:block;height:auto;max-height:48px;width:auto;max-width:140px;object-fit:contain;" />
+            <img src="https://plans.getenflowai.online/assets/logo.png" alt="EnflowAI" width="140" style="display:block;height:auto;max-height:48px;width:auto;max-width:140px;object-fit:contain;" />
           </td></tr>
         </table>
         <table border="0" cellspacing="0" cellpadding="0" width="48" style="margin:0 auto 28px;">
@@ -341,7 +341,7 @@ $emailBody = <<<HTML
         <!-- Brand strip -->
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr><td style="background:#1a1814;border-radius:14px;padding:28px 30px;text-align:center;">
-            <img src="https://getenflowai.online/assets/logo.png" alt="" style="display:block;margin:0 auto 14px;width:150px;height:auto;opacity:0.6;" />
+            <img src="https://plans.getenflowai.online/assets/logo.png" alt="" style="display:block;margin:0 auto 14px;width:150px;height:auto;opacity:0.6;" />
             <p style="margin:0;font-family:'DM Serif Display',Georgia,serif;font-size:16px;font-style:italic;color:rgba(255,255,255,0.70);line-height:1.7;">"Built for Nigeria's food industry — adaptive, intelligent, and designed to scale with you."</p>
             <p style="margin:12px 0 0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#c9a870;font-weight:500;">The EnflowAI Team</p>
           </td></tr>
@@ -354,7 +354,7 @@ $emailBody = <<<HTML
       <td class="footer-block" align="center" style="background:#f5f2ec;border-top:1px solid rgba(26,24,20,0.07);padding:32px 40px;">
         <table border="0" cellspacing="0" cellpadding="0" style="margin:0 auto 20px;">
           <tr><td align="center">
-            <img src="https://getenflowai.online/assets/icon.png" alt="EnflowAI" width="90" style="display:block;height:auto;max-height:30px;width:auto;max-width:90px;opacity:0.45;" />
+            <img src="https://plans.getenflowai.online/assets/icon.png" alt="EnflowAI" width="90" style="display:block;height:auto;max-height:30px;width:auto;max-width:90px;opacity:0.45;" />
           </td></tr>
         </table>
         <p style="margin:0 0 6px;font-family:'DM Sans',Arial,sans-serif;font-size:12.5px;line-height:1.75;color:#b8b0a4;font-weight:300;">You're receiving this because you subscribed to EnflowAI.</p>
