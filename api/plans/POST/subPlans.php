@@ -259,7 +259,7 @@ $emailBody = <<<HTML
         </table>
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:32px;">
           <tr><td align="center" style="border-radius:14px;overflow:hidden;line-height:0;">
-            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80&auto=format&fit=crop" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
+            <img src="https://unsplash.com/photos/man-in-white-dress-shirt-holding-white-ceramic-plate-y-XZf_TNRms" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
           </td></tr>
         </table>
         <h1 class="hero-title" style="margin:0 0 14px;font-family:'DM Serif Display',Georgia,serif;font-size:34px;font-weight:400;line-height:1.2;color:rgba(255,255,255,0.90);letter-spacing:-0.01em;">
@@ -307,7 +307,7 @@ $emailBody = <<<HTML
         <h2 style="margin:0 0 20px;font-family:'DM Serif Display',Georgia,serif;font-size:22px;font-weight:400;line-height:1.4;color:#1a1814;">Everything included in your plan</h2>
 
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:28px;"><tr><td align="center" style="border-radius:12px;overflow:hidden;line-height:0;">
-          <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800&q=80&auto=format&fit=crop" alt="Restaurant Technology" width="504" style="display:block;width:100%;max-width:504px;height:200px;object-fit:cover;border-radius:12px;filter:brightness(0.88) saturate(0.85);" />
+          <img src="https://unsplash.com/photos/two-women-talk-to-an-orange-robot-at-a-table-A106YLEaIAI" alt="Restaurant Technology" width="504" style="display:block;width:100%;max-width:504px;height:200px;object-fit:cover;border-radius:12px;filter:brightness(0.88) saturate(0.85);" />
         </td></tr></table>
 
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:36px;">
