@@ -175,6 +175,13 @@ try {
 
     $pdo->commit();
 
+    // Reset low credit alert so it can fire again next top-up
+$pdo->prepare("
+    UPDATE subscriptions SET low_credit_alert_sent = 0
+    WHERE LOWER(email) = LOWER(:email)
+")->execute([":email" => $email]);
+    
+
     // ── TELEGRAM ──
     $botToken = getenv("TELEGRAM_BOT_TOKEN");
     $chatId   = getenv("TELEGRAM_CHAT_ID");
