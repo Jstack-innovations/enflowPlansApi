@@ -264,7 +264,7 @@ try {
         </table>
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:32px;">
           <tr><td align="center" style="border-radius:14px;overflow:hidden;line-height:0;">
-            <img src="https://images.unsplash.com/photo-1619324786147-702fd4261b42?q=80&w=772&auto=format&fit=crop" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
+            <img src="https://images.unsplash.com/photo-1677442135136-760c813028c0?q=80&w=1032&auto=format&fit=crop" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
           </td></tr>
         </table>
         <h1 class="hero-title" style="margin:0 0 14px;font-family:'DM Serif Display',Georgia,serif;font-size:34px;font-weight:400;line-height:1.2;color:rgba(255,255,255,0.90);letter-spacing:-0.01em;">
