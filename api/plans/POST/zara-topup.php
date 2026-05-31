@@ -251,7 +251,7 @@ try {
       <td class="hero-block" align="center" style="background:#1a1814;padding:52px 48px 48px;">
         <table border="0" cellspacing="0" cellpadding="0" style="margin-bottom:32px;">
           <tr><td align="center">
-            <img src="https://getenflowai.online/assets/logo.png" alt="EnflowAI" width="140" style="display:block;height:auto;max-height:48px;width:auto;max-width:140px;object-fit:contain;" />
+            <img src="https://plans.getenflowai.online/logo.png" alt="EnflowAI" width="140" style="display:block;height:auto;max-height:48px;width:auto;max-width:140px;object-fit:contain;" />
           </td></tr>
         </table>
         <table border="0" cellspacing="0" cellpadding="0" width="48" style="margin:0 auto 28px;">
@@ -264,7 +264,7 @@ try {
         </table>
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:32px;">
           <tr><td align="center" style="border-radius:14px;overflow:hidden;line-height:0;">
-            <img src="https://images.unsplash.com/photo-1767950467836-ef59566126c3?q=80&w=1033&auto=format&fit=crop" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
+            <img src="https://images.unsplash.com/photo-1619324786147-702fd4261b42?q=80&w=772&auto=format&fit=crop" alt="Restaurant" width="504" style="display:block;width:100%;max-width:504px;height:auto;border-radius:14px;filter:brightness(0.75) saturate(0.9);" />
           </td></tr>
         </table>
         <h1 class="hero-title" style="margin:0 0 14px;font-family:'DM Serif Display',Georgia,serif;font-size:34px;font-weight:400;line-height:1.2;color:rgba(255,255,255,0.90);letter-spacing:-0.01em;">
@@ -308,7 +308,7 @@ try {
         <h2 style="margin:0 0 20px;font-family:'DM Serif Display',Georgia,serif;font-size:22px;font-weight:400;line-height:1.4;color:#1a1814;">Your AI-powered business assistant</h2>
 
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:28px;"><tr><td align="center" style="border-radius:12px;overflow:hidden;line-height:0;">
-          <img src="https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?q=80&w=1032&auto=format&fit=crop" alt="AI Assistant" width="504" style="display:block;width:100%;max-width:504px;height:200px;object-fit:cover;border-radius:12px;filter:brightness(0.88) saturate(0.85);" />
+          <img src="https://images.unsplash.com/photo-1767950467836-ef59566126c3?q=80&w=1033&auto=format&fit=crop" alt="AI Assistant" width="504" style="display:block;width:100%;max-width:504px;height:200px;object-fit:cover;border-radius:12px;filter:brightness(0.88) saturate(0.85);" />
         </td></tr></table>
 
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:36px;">
@@ -330,7 +330,7 @@ try {
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:36px;">
           <tr><td align="center">
             <a href="https://getenflowai.online" style="display:inline-block;background:#1a1814;color:#ede9e1;text-decoration:none;padding:16px 36px;border-radius:10px;font-family:'DM Sans',Arial,sans-serif;font-size:14.5px;font-weight:500;letter-spacing:0.02em;">
-              Open Dashboard &nbsp;→
+              Know More &nbsp;→
             </a>
           </td></tr>
         </table>
@@ -338,7 +338,7 @@ try {
         <!-- Brand strip -->
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr><td style="background:#1a1814;border-radius:14px;padding:28px 30px;text-align:center;">
-            <img src="https://getenflowai.online/assets/logo.png" alt="" style="display:block;margin:0 auto 14px;width:150px;height:auto;opacity:0.6;" />
+            <img src="https://plans.getenflowai.online/logo.png" alt="" style="display:block;margin:0 auto 14px;width:150px;height:auto;opacity:0.6;" />
             <p style="margin:0;font-family:'DM Serif Display',Georgia,serif;font-size:16px;font-style:italic;color:rgba(255,255,255,0.70);line-height:1.7;">"Built for Nigeria's food industry — adaptive, intelligent, and designed to scale with you."</p>
             <p style="margin:12px 0 0;font-family:'DM Sans',Arial,sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#c9a870;font-weight:500;">The EnflowAI Team</p>
           </td></tr>
@@ -351,7 +351,7 @@ try {
       <td class="footer-block" align="center" style="background:#f5f2ec;border-top:1px solid rgba(26,24,20,0.07);padding:32px 40px;">
         <table border="0" cellspacing="0" cellpadding="0" style="margin:0 auto 20px;">
           <tr><td align="center">
-            <img src="https://getenflowai.online/assets/icon.png" alt="EnflowAI" width="90" style="display:block;height:auto;max-height:30px;width:auto;max-width:90px;opacity:0.45;" />
+            <img src="https://plans.getenflowai.online/icon.png" alt="EnflowAI" width="90" style="display:block;height:auto;max-height:30px;width:auto;max-width:90px;opacity:0.45;" />
           </td></tr>
         </table>
         <p style="margin:0 0 6px;font-family:'DM Sans',Arial,sans-serif;font-size:12.5px;line-height:1.75;color:#b8b0a4;font-weight:300;">You're receiving this because you topped up Zara credits on EnflowAI.</p>
