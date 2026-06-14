@@ -61,6 +61,10 @@ if ($uri === "/trialSignup") {
     require $basePath . "/plans/POST/trial-signup.php";
     exit;
 }
+if ($uri === "/onboarding") {
+    require $basePath . "/plans/POST/onboarding-validate.php";
+    exit;
+}
 if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
