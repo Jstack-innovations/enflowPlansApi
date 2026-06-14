@@ -60,7 +60,7 @@ if ((int)$user["onboarding_step"] < 8) {
 // Activate account + clear token
 $stmt = $pdo->prepare("
     UPDATE subscriptions
-    SET status            = 'active',
+    SET status            = 'trial',
         onboarding_token  = NULL,
         onboarding_step   = 9
     WHERE onboarding_token = :token
@@ -104,6 +104,6 @@ echo json_encode([
         "email"         => $user["email"],
         "business_name" => $user["business_name"],
         "plan"          => $user["plan"],
-        "status"        => "active",
+        "status"        => "trial",
     ],
 ]);
