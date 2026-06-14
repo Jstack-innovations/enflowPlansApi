@@ -1,4 +1,3 @@
-cat > onboarding-set-password.php << 'EOF'
 <?php
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
