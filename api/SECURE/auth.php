@@ -16,7 +16,7 @@ function authenticate($pdo) {
        trial_ends_at, renewal_date, business_name, business_type,
        logo_url, country, currency, subscription_code,
        zara_credits, zara_credits_used, auth_token_expiry,
-       team_members, connected_tools, zara_brand_voice,
+       team_members, connected_tools, website, zara_brand_voice,
        zara_primary_lang, zara_also_speaks, zara_top_goals, zara_hours
 FROM subscriptions
 WHERE auth_token = :token
