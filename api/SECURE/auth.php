@@ -43,12 +43,5 @@ function authenticate($pdo) {
         exit();
     }
 
-    // Check trial expired
-    if ($user["trial_ends_at"] && strtotime($user["trial_ends_at"]) < time()) {
-        http_response_code(403);
-        echo json_encode(["status" => "error", "message" => "Your trial has expired. Please upgrade to continue."]);
-        exit();
-    }
-
     return $user;
 }
