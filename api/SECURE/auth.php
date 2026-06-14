@@ -13,7 +13,7 @@ function authenticate($pdo) {
 
     $stmt = $pdo->prepare("
         SELECT id, fullname, email, phone, plan, status,
-               trial_ends_at, business_name, business_type,
+               trial_ends_at, renewal_date, business_name, business_type,
                logo_url, country, currency, subscription_code,
                zara_credits, zara_credits_used, auth_token_expiry
         FROM subscriptions
@@ -29,14 +29,14 @@ function authenticate($pdo) {
         exit();
     }
 
-    // Check token expiry
+    // Token expired
     if (strtotime($user["auth_token_expiry"]) < time()) {
         http_response_code(401);
         echo json_encode(["status" => "error", "message" => "Session expired. Please log in again."]);
         exit();
     }
 
-    // Check account suspended
+    // Suspended only
     if ($user["status"] === "suspended") {
         http_response_code(403);
         echo json_encode(["status" => "error", "message" => "Your account has been suspended. Please contact support."]);
