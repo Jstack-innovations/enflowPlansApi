@@ -97,6 +97,10 @@ if ($uri === "/onboardingFinalize") {
     require $basePath . "/plans/POST/onboarding-finalize.php";
     exit;
 }
+if ($uri === "/login") {
+    require $basePath . "/plans/POST/login.php";
+    exit;
+}
 if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
