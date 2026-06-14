@@ -102,7 +102,7 @@ if ($uri === "/login") {
     exit;
 }
 if ($uri === "/dashboard") {
-    require $basePath . "/plans/POST/dashboard.php";
+    require $basePath . "/plans/GET/CORS/dashboard.php";
     exit;
 }
 if ($uri === "/zaraTopup") {
