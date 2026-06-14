@@ -1,0 +1,54 @@
+<?php
+function authenticate($pdo) {
+    $headers = getallheaders();
+    $authHeader = trim($headers["Authorization"] ?? $headers["authorization"] ?? "");
+
+    if (!$authHeader || !str_starts_with($authHeader, "Bearer ")) {
+        http_response_code(401);
+        echo json_encode(["status" => "error", "message" => "Unauthorized. No token provided."]);
+        exit();
+    }
+
+    $token = trim(substr($authHeader, 7));
+
+    $stmt = $pdo->prepare("
+        SELECT id, fullname, email, phone, plan, status,
+               trial_ends_at, business_name, business_type,
+               logo_url, country, currency, subscription_code,
+               zara_credits, zara_credits_used, auth_token_expiry
+        FROM subscriptions
+        WHERE auth_token = :token
+        LIMIT 1
+    ");
+    $stmt->execute([":token" => $token]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["status" => "error", "message" => "Unauthorized. Invalid token."]);
+        exit();
+    }
+
+    // Check token expiry
+    if (strtotime($user["auth_token_expiry"]) < time()) {
+        http_response_code(401);
+        echo json_encode(["status" => "error", "message" => "Session expired. Please log in again."]);
+        exit();
+    }
+
+    // Check account suspended
+    if ($user["status"] === "suspended") {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "message" => "Your account has been suspended. Please contact support."]);
+        exit();
+    }
+
+    // Check trial expired
+    if ($user["trial_ends_at"] && strtotime($user["trial_ends_at"]) < time()) {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "message" => "Your trial has expired. Please upgrade to continue."]);
+        exit();
+    }
+
+    return $user;
+}
