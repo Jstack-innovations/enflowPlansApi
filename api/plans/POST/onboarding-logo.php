@@ -1,8 +1,4 @@
 <?php
-error_log(print_r($_POST, true));
-error_log(print_r($_FILES, true));
-echo json_encode(["debug" => ["post" => $_POST, "files" => $_FILES]]);
-exit();
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
