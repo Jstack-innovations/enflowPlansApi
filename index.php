@@ -101,6 +101,10 @@ if ($uri === "/login") {
     require $basePath . "/plans/POST/login.php";
     exit;
 }
+if ($uri === "/logout") {
+    require $basePath . "/plans/POST/logout.php";
+    exit;
+}
 if ($uri === "/dashboard") {
     require $basePath . "/plans/GET/CORS/dashboard.php";
     exit;
