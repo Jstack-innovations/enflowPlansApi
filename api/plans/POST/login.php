@@ -67,7 +67,7 @@ if (!empty($user["onboarding_token"])) {
 
 // Generate Bearer token
 $token       = bin2hex(random_bytes(32));
-$tokenExpiry = date("Y-m-d H:i:s", strtotime("+30 days"));
+$tokenExpiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
 $stmt = $pdo->prepare("
     UPDATE subscriptions
