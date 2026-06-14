@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 require_once __DIR__ . '/../../SECURE/config.php';
-require_once __DIR__ . '/../../SECURE/resend_mailer.php';
+require_once __DIR__ . '/../../SECURE/resendMailer.php';
 
 $body  = json_decode(file_get_contents("php://input"), true);
 $token = trim($body["onboarding_token"] ?? "");
