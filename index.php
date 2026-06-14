@@ -77,6 +77,10 @@ if ($uri === "/onboardingBusiness") {
     require $basePath . "/plans/POST/onboarding-business.php";
     exit;
 }
+if ($uri === "/onboardingLogo") {
+    require $basePath . "/plans/POST/onboarding-logo.php";
+    exit;
+}
 if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
