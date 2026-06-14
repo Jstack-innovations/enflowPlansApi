@@ -73,6 +73,10 @@ if ($uri === "/onboardingVerifyOtp") {
     require $basePath . "/plans/POST/onboarding-verify-otp.php";
     exit;
 }
+if ($uri === "/onboardingBusiness") {
+    require $basePath . "/plans/POST/onboarding-business.php";
+    exit;
+}
 if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
