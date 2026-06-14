@@ -85,9 +85,6 @@ sendEmail(
         <a href='https://getenflowai.online/login' style='display:inline-block;background:linear-gradient(135deg,#d6a86a,#b8864a);color:#0c0602;padding:14px 32px;border-radius:100px;font-weight:700;font-size:13px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;'>
             Go to Dashboard →
         </a>
-        <a href='http://localhost:5173/login' style='display:inline-block;background:linear-gradient(135deg,#d6a86a,#b8864a);color:#0c0602;padding:14px 32px;border-radius:100px;font-weight:700;font-size:13px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;'>
-            Go to Dashboard →
-        </a>
         <p style='margin-top:32px;color:#555;font-size:11px;'>© 2026 jSTack Innovations · EnflowAI</p>
     </div>
     "
