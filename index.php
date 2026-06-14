@@ -101,6 +101,10 @@ if ($uri === "/login") {
     require $basePath . "/plans/POST/login.php";
     exit;
 }
+if ($uri === "/dashboard") {
+    require $basePath . "/plans/POST/dashboard.php";
+    exit;
+}
 if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
