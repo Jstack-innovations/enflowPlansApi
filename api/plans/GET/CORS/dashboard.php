@@ -15,12 +15,13 @@ echo json_encode([
     "status" => "ok",
     "dashboard" => [
         "business" => [
-            "name"          => $user["business_name"],
-            "type"          => $user["business_type"],
-            "logo_url"      => $user["logo_url"],
-            "country"       => $user["country"],
-            "currency"      => $user["currency"],
-        ],
+    "name"     => $user["business_name"],
+    "type"     => $user["business_type"],
+    "logo_url" => $user["logo_url"],
+    "country"  => $user["country"],
+    "currency" => $user["currency"],
+    "website"  => $user["website"],
+],
         "account" => [
             "id"                => $user["id"],
             "fullname"          => $user["fullname"],
