@@ -1,3 +1,4 @@
+cat > onboarding-set-password.php << 'EOF'
 <?php
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -12,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 require_once __DIR__ . '/../../SECURE/config.php';
+require_once __DIR__ . '/../../SECURE/resendMail.php';
 
 $body     = json_decode(file_get_contents("php://input"), true);
 $token    = trim($body["onboarding_token"] ?? "");
@@ -29,7 +31,6 @@ if (strlen($password) < 8) {
     exit();
 }
 
-// Validate token
 $stmt = $pdo->prepare("SELECT id, email, fullname FROM subscriptions WHERE onboarding_token = :token LIMIT 1");
 $stmt->execute([":token" => $token]);
 $user = $stmt->fetch();
@@ -40,12 +41,10 @@ if (!$user) {
     exit();
 }
 
-// Generate OTP
 $otp        = str_pad(random_int(0, 999999), 6, "0", STR_PAD_LEFT);
 $otpExpires = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 $hashed     = password_hash($password, PASSWORD_BCRYPT);
 
-// Update password + OTP
 $stmt = $pdo->prepare("
     UPDATE subscriptions
     SET password          = :password,
@@ -62,34 +61,25 @@ $stmt->execute([
     ":token"    => $token,
 ]);
 
-// Send OTP email via Resend
-$emailPayload = json_encode([
-    "from"    => "Enflow <noreply@getenflowai.online>",
-    "to"      => [$user["email"]],
-    "subject" => "Verify your email — " . $otp,
-    "html"    => "
-        <div style='background:#080502;padding:40px;font-family:sans-serif;color:#dddddd;'>
-            <h2 style='color:#d6a86a;'>Verify your email</h2>
-            <p>Hi " . htmlspecialchars($user["fullname"]) . ",</p>
-            <p>Your verification code is:</p>
-            <div style='font-size:36px;font-weight:bold;letter-spacing:12px;color:#ffffff;margin:24px 0;'>" . $otp . "</div>
-            <p style='color:#888;font-size:12px;'>This code expires in 10 minutes.</p>
-        </div>
-    ",
-]);
+$emailResult = sendEmail(
+    $user["email"],
+    "Verify your email — Your Enflow OTP",
+    "
+    <div style='background:#080502;padding:40px;font-family:sans-serif;color:#dddddd;'>
+        <h2 style='color:#d6a86a;margin-bottom:8px;'>Verify your email</h2>
+        <p style='margin-bottom:16px;'>Hi " . htmlspecialchars($user["fullname"]) . ",</p>
+        <p>Your verification code is:</p>
+        <div style='font-size:40px;font-weight:bold;letter-spacing:16px;color:#ffffff;margin:28px 0;'>" . $otp . "</div>
+        <p style='color:#888;font-size:12px;'>This code expires in 10 minutes. Do not share it with anyone.</p>
+    </div>
+    "
+);
 
-$ch = curl_init("https://api.resend.com/emails");
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => $emailPayload,
-    CURLOPT_HTTPHEADER     => [
-        "Authorization: Bearer " . RESEND_API_KEY,
-        "Content-Type: application/json",
-    ],
-]);
-curl_exec($ch);
-curl_close($ch);
+if ($emailResult["status"] !== "success") {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "Password saved but email failed to send. Try resending."]);
+    exit();
+}
 
 echo json_encode([
     "status"  => "ok",
