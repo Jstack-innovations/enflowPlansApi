@@ -25,9 +25,9 @@ if (!$email || !$password) {
 
 $stmt = $pdo->prepare("
     SELECT id, fullname, email, phone, password, status,
-           trial_ends_at, plan, business_name, business_type,
+           trial_ends_at, renewal_date, plan, business_name, business_type,
            logo_url, country, currency, subscription_code,
-           zara_credits, zara_credits_used
+           zara_credits, zara_credits_used, onboarding_token
     FROM subscriptions
     WHERE LOWER(email) = :email
     LIMIT 1
@@ -47,25 +47,23 @@ if (!password_verify($password, $user["password"])) {
     exit();
 }
 
-// Check account status
+// Suspended — hard block
 if ($user["status"] === "suspended") {
     http_response_code(403);
     echo json_encode(["status" => "error", "message" => "Your account has been suspended. Please contact support."]);
     exit();
 }
 
-if ($user["status"] === "trial") {
+// Onboarding incomplete — token still set
+if (!empty($user["onboarding_token"])) {
     http_response_code(403);
     echo json_encode(["status" => "error", "message" => "Onboarding incomplete. Please complete your setup."]);
     exit();
 }
 
-// Check trial expiry
-if ($user["trial_ends_at"] && strtotime($user["trial_ends_at"]) < time()) {
-    http_response_code(403);
-    echo json_encode(["status" => "error", "message" => "Your trial has expired. Please upgrade to continue."]);
-    exit();
-}
+// Everything else loads dashboard
+// trial active, trial expired, renewal active, renewal expired
+// frontend handles the state via trial_ends_at and renewal_date
 
 // Generate Bearer token
 $token       = bin2hex(random_bytes(32));
@@ -84,11 +82,11 @@ $stmt->execute([
 ]);
 
 echo json_encode([
-    "status" => "ok",
+    "status"  => "ok",
     "message" => "Login successful.",
-    "token"  => $token,
+    "token"   => $token,
     "expires" => $tokenExpiry,
-    "user"   => [
+    "user"    => [
         "id"                => $user["id"],
         "fullname"          => $user["fullname"],
         "email"             => $user["email"],
@@ -96,6 +94,7 @@ echo json_encode([
         "plan"              => $user["plan"],
         "status"            => $user["status"],
         "trial_ends_at"     => $user["trial_ends_at"],
+        "renewal_date"      => $user["renewal_date"],
         "business_name"     => $user["business_name"],
         "business_type"     => $user["business_type"],
         "logo_url"          => $user["logo_url"],
