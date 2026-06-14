@@ -79,6 +79,11 @@ sendEmail(
             <strong style='color:#ffffff;'>" . htmlspecialchars($user["business_name"]) . "</strong> 
             is now active on EnflowAI.
         </p>
+        <p style='margin-bottom:16px;background:rgba(214,168,106,0.08);border:1px solid rgba(214,168,106,0.2);border-radius:10px;padding:14px 18px;font-size:13px;'>
+    <span style='color:#aaaaaa;display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;'>Your login details</span>
+    <strong style='color:#ffffff;'>Email:</strong> <span style='color:#d6a86a;'>" . htmlspecialchars($user["email"]) . "</span><br/>
+    <strong style='color:#ffffff;'>Password:</strong> <span style='color:#aaaaaa;'>The one you set during setup</span>
+</p>
         <p style='margin-bottom:24px;color:#aaaaaa;'>
             Your trial is running. Log in to your dashboard and let Zara get to work.
         </p>
