@@ -126,31 +126,31 @@ if (stripos($plan, "zara + app") !== false || stripos($plan, "zara+app") !== fal
 $subscriptionCode = "SUB-" . strtoupper(substr(md5(uniqid()), 0, 10));
 
 /* ===== UPDATE OR INSERT ===== */
-if ($existing) {
+if ($existing) {         
     $stmt = $conn->prepare("
-        UPDATE subscriptions SET
-            fullname          = ?,
-            username          = ?,
-            phone             = ?,
-            country           = ?,
-            dob               = ?,
-            gender            = ?,
-            business_type     = ?,
-            business_name     = ?,
-            website           = ?,
-            currency          = ?,
-            num_locations     = ?,
-            num_staff         = ?,
-            plan              = ?,
-            amount            = ?,
-            transaction_id    = ?,
-            subscription_code = ?,
-            status            = 'active',
-            renewal_date      = ?,
-            zara_credits      = ?,
-            zara_credits_used = 0
-        WHERE LOWER(email) = LOWER(?)
-    ");
+    UPDATE subscriptions SET
+        fullname          = ?,
+        username          = ?,
+        phone             = ?,
+        country           = ?,
+        dob               = ?,
+        gender            = ?,
+        business_type     = ?,
+        business_name     = ?,
+        website           = ?,
+        currency          = ?,
+        num_locations     = ?,
+        num_staff         = ?,
+        plan              = ?,
+        amount            = ?,
+        transaction_id    = ?,
+        subscription_code = ?,
+        status            = 'active',
+        renewal_date      = ?,
+        zara_credits      = zara_credits + ?,
+        zara_credits_used = 0
+    WHERE LOWER(email) = LOWER(?)
+");
     $stmt->bind_param(
         "ssssssssssiisdsssis",
         $fullname, $username, $phone, $country, $dob,
