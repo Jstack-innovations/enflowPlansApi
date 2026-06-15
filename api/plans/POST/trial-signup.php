@@ -36,7 +36,10 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 // ── Check if email OR phone already exists in subscriptions ──
 $stmt = $pdo->prepare("
-    SELECT id, fullname AS name, email, phone, status, trial_ends_at, renewal_date, plan
+    SELECT id, fullname AS name, email, phone, status, trial_ends_at, renewal_date, plan,
+           username, country, dob, gender,
+           business_type AS businessType,
+           business_name AS businessName
     FROM subscriptions 
     WHERE LOWER(email) = :email OR phone = :phone 
     LIMIT 1
@@ -49,15 +52,21 @@ if ($existing) {
         "status"  => "existing",
         "message" => "Account found. Please upgrade to continue.",
         "user"    => [
-            "id"            => $existing["id"],
-            "name"          => $existing["name"],
-            "email"         => $existing["email"],
-            "phone"         => $existing["phone"],
-            "status"        => $existing["status"],
-            "trial_ends_at" => $existing["trial_ends_at"],
-            "renewal_date"  => $existing["renewal_date"],
-            "plan"          => $existing["plan"],
-        ],
+    "id"            => $existing["id"],
+    "name"          => $existing["name"],
+    "email"         => $existing["email"],
+    "phone"         => $existing["phone"],
+    "status"        => $existing["status"],
+    "trial_ends_at" => $existing["trial_ends_at"],
+    "renewal_date"  => $existing["renewal_date"],
+    "plan"          => $existing["plan"],
+    "username"      => $existing["username"],
+    "country"       => $existing["country"],
+    "dob"           => $existing["dob"],
+    "gender"        => $existing["gender"],
+    "businessType"  => $existing["businessType"],
+    "businessName"  => $existing["businessName"],
+],
     ]);
     exit();
 }
