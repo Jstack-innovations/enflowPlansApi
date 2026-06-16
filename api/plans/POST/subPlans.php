@@ -308,7 +308,7 @@ HTML;
 
 // ── ADMIN ALERT EMAIL ──
 sendEmail(
-    "sales@getenflowai.online",
+    "wsamson630@gmail.com",
     "💳 New Subscription: {$businessName} — {$plan}",
     "
     <p><strong>Name:</strong> {$fullname}</p>
