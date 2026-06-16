@@ -185,8 +185,11 @@ if (!$stmt->execute()) {
 }
 
 /* ===== TELEGRAM ===== */
-$botToken = getenv("TELEGRAM_BOT_TOKEN");
-$chatId   = getenv("TELEGRAM_CHAT_ID");
+$botToken   = getenv("TELEGRAM_BOT_TOKEN");
+$chatId     = getenv("TELEGRAM_CHAT_ID");
+$txRef      = $result['data']['tx_ref'] ?? '';
+$txRefSafe  = str_replace('_', '\\_', $txRef);
+
 $message  = "
 💳 *New Payment Received!*
 
@@ -199,6 +202,8 @@ $message  = "
 🔑 *Sub Code:* {$subscriptionCode}
 📅 *Renewal:* {$renewalDate}
 ⚡ *Zara Credits:* {$zaraCredits}
+🔗 *Transaction ID:* {$tx_id}
+📌 *TX Ref:* {$txRefSafe}
 ";
 $url     = "https://api.telegram.org/bot{$botToken}/sendMessage";
 $payload = http_build_query(["chat_id" => $chatId, "text" => $message, "parse_mode" => "Markdown"]);
@@ -209,6 +214,25 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_exec($ch);
 curl_close($ch);
+
+// ── ADMIN ALERT EMAIL ──
+sendEmail(
+    "wsamson630@gmail.com",
+    "💳 New Subscription: {$businessName} — {$plan}",
+    "
+    <p><strong>Name:</strong> {$fullname}</p>
+    <p><strong>Business:</strong> {$businessName}</p>
+    <p><strong>Email:</strong> {$email}</p>
+    <p><strong>Phone:</strong> {$phone}</p>
+    <p><strong>Plan:</strong> {$plan}</p>
+    <p><strong>Amount:</strong> ₦{$amount}</p>
+    <p><strong>Transaction ID:</strong> {$tx_id}</p>
+    <p><strong>TX Ref:</strong> {$txRef}</p>
+    <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
+    <p><strong>Renewal:</strong> {$renewalDate}</p>
+    <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
+    "
+);
 
 /* ===== EMAIL ===== */
 $firstName = explode(' ', trim($fullname))[0];
