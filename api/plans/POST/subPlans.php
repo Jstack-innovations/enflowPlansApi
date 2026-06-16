@@ -56,7 +56,6 @@ if (!$result || $result['status'] !== 'success' || $result['data']['status'] !==
 }
 
 $amount = (float)$result['data']['amount'];
-$txRef  = $result['data']['tx_ref'] ?? '';
 
 /* ===== DUPLICATE CHECK ===== */
 $dup = $conn->prepare("SELECT id FROM subscriptions WHERE transaction_id = ?");
@@ -200,8 +199,6 @@ $message  = "
 🔑 *Sub Code:* {$subscriptionCode}
 📅 *Renewal:* {$renewalDate}
 ⚡ *Zara Credits:* {$zaraCredits}
-🔗 *Transaction ID:* {$tx_id}
-📌 *TX Ref:* {$txRef}
 ";
 $url     = "https://api.telegram.org/bot{$botToken}/sendMessage";
 $payload = http_build_query(["chat_id" => $chatId, "text" => $message, "parse_mode" => "Markdown"]);
@@ -305,25 +302,6 @@ $emailBody = <<<HTML
 </body>
 </html>
 HTML;
-
-// ── ADMIN ALERT EMAIL ──
-sendEmail(
-    "wsamson630@gmail.com",
-    "💳 New Subscription: {$businessName} — {$plan}",
-    "
-    <p><strong>Name:</strong> {$fullname}</p>
-    <p><strong>Business:</strong> {$businessName}</p>
-    <p><strong>Email:</strong> {$email}</p>
-    <p><strong>Phone:</strong> {$phone}</p>
-    <p><strong>Plan:</strong> {$plan}</p>
-    <p><strong>Amount:</strong> ₦{$amount}</p>
-    <p><strong>Transaction ID:</strong> {$tx_id}</p>
-    <p><strong>TX Ref:</strong> {$txRef}</p>
-    <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
-    <p><strong>Renewal:</strong> {$renewalDate}</p>
-    <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
-    "
-);
 
 sendEmail($email, "Your EnflowAI Subscription is Active 🎉", $emailBody);
 
