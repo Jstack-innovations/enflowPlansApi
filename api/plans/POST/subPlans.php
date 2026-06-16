@@ -211,6 +211,24 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_exec($ch);
 curl_close($ch);
 
+// ── ADMIN ALERT EMAIL ──
+sendEmail(
+    "hello@getenflowai.online",
+    "💳 New Subscription: {$businessName} — {$plan}",
+    "
+    <p><strong>Name:</strong> {$fullname}</p>
+    <p><strong>Business:</strong> {$businessName}</p>
+    <p><strong>Email:</strong> {$email}</p>
+    <p><strong>Phone:</strong> {$phone}</p>
+    <p><strong>Plan:</strong> {$plan}</p>
+    <p><strong>Amount:</strong> ₦{$amount}</p>
+    <p><strong>Transaction ID:</strong> {$tx_id}</p>
+    <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
+    <p><strong>Renewal:</strong> {$renewalDate}</p>
+    <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
+    "
+);
+
 /* ===== EMAIL ===== */
 $firstName = explode(' ', trim($fullname))[0];
 
