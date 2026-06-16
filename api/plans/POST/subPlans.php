@@ -200,6 +200,7 @@ $message  = "
 📅 *Renewal:* {$renewalDate}
 ⚡ *Zara Credits:* {$zaraCredits}
 🔗 *Transaction ID:* {$tx_id}
+📌 *TX Ref:* {$txRef}
 ";
 $url     = "https://api.telegram.org/bot{$botToken}/sendMessage";
 $payload = http_build_query(["chat_id" => $chatId, "text" => $message, "parse_mode" => "Markdown"]);
@@ -210,24 +211,6 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_exec($ch);
 curl_close($ch);
-
-// ── ADMIN ALERT EMAIL ──
-sendEmail(
-    "hello@getenflowai.online",
-    "💳 New Subscription: {$businessName} — {$plan}",
-    "
-    <p><strong>Name:</strong> {$fullname}</p>
-    <p><strong>Business:</strong> {$businessName}</p>
-    <p><strong>Email:</strong> {$email}</p>
-    <p><strong>Phone:</strong> {$phone}</p>
-    <p><strong>Plan:</strong> {$plan}</p>
-    <p><strong>Amount:</strong> ₦{$amount}</p>
-    <p><strong>Transaction ID:</strong> {$tx_id}</p>
-    <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
-    <p><strong>Renewal:</strong> {$renewalDate}</p>
-    <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
-    "
-);
 
 /* ===== EMAIL ===== */
 $firstName = explode(' ', trim($fullname))[0];
@@ -321,6 +304,24 @@ $emailBody = <<<HTML
 </body>
 </html>
 HTML;
+
+// ── ADMIN ALERT EMAIL ──
+sendEmail(
+    "hello@getenflowai.online",
+    "💳 New Subscription: {$businessName} — {$plan}",
+    "
+    <p><strong>Name:</strong> {$fullname}</p>
+    <p><strong>Business:</strong> {$businessName}</p>
+    <p><strong>Email:</strong> {$email}</p>
+    <p><strong>Phone:</strong> {$phone}</p>
+    <p><strong>Plan:</strong> {$plan}</p>
+    <p><strong>Amount:</strong> ₦{$amount}</p>
+    <p><strong>Transaction ID:</strong> {$tx_id}</p>
+    <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
+    <p><strong>Renewal:</strong> {$renewalDate}</p>
+    <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
+    "
+);
 
 sendEmail($email, "Your EnflowAI Subscription is Active 🎉", $emailBody);
 
