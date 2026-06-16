@@ -56,6 +56,7 @@ if (!$result || $result['status'] !== 'success' || $result['data']['status'] !==
 }
 
 $amount = (float)$result['data']['amount'];
+$txRef  = $result['data']['tx_ref'] ?? '';
 
 /* ===== DUPLICATE CHECK ===== */
 $dup = $conn->prepare("SELECT id FROM subscriptions WHERE transaction_id = ?");
@@ -317,6 +318,7 @@ sendEmail(
     <p><strong>Plan:</strong> {$plan}</p>
     <p><strong>Amount:</strong> ₦{$amount}</p>
     <p><strong>Transaction ID:</strong> {$tx_id}</p>
+    <p><strong>TX Ref:</strong> {$txRef}</p>
     <p><strong>Sub Code:</strong> {$subscriptionCode}</p>
     <p><strong>Renewal:</strong> {$renewalDate}</p>
     <p><strong>Zara Credits:</strong> {$zaraCredits}</p>
