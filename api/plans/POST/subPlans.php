@@ -199,6 +199,7 @@ $message  = "
 🔑 *Sub Code:* {$subscriptionCode}
 📅 *Renewal:* {$renewalDate}
 ⚡ *Zara Credits:* {$zaraCredits}
+🔗 *Transaction ID:* {$tx_id}
 ";
 $url     = "https://api.telegram.org/bot{$botToken}/sendMessage";
 $payload = http_build_query(["chat_id" => $chatId, "text" => $message, "parse_mode" => "Markdown"]);
