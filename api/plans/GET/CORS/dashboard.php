@@ -13,13 +13,8 @@ $user = authenticate($pdo);
 
 // --- Fetch local stats if local_server_url exists ---
 $local_stats = null;
-$debug_url = null;
-$debug_http = null;
-$debug_raw = null;
-
 if (!empty($user["local_server_url"])) {
     $local_url = rtrim($user["local_server_url"], "/") . "/stats";
-    $debug_url = $local_url;
     
     $ch = curl_init($local_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -30,9 +25,6 @@ if (!empty($user["local_server_url"])) {
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-
-    $debug_http = $http_code;
-    $debug_raw  = $response;
 
     if ($http_code === 200 && $response) {
         $decoded = json_decode($response, true);
@@ -79,10 +71,5 @@ echo json_encode([
             "hours"       => $user["zara_hours"]       ? json_decode($user["zara_hours"])       : [],
         ],
         "stats" => $local_stats,
-        "stats_debug" => [
-            "url_called" => $debug_url,
-            "http_code"  => $debug_http,
-            "raw"        => $debug_raw,
-        ],
     ],
 ]);
