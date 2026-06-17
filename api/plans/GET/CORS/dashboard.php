@@ -14,7 +14,7 @@ $user = authenticate($pdo);
 // --- Fetch local stats if local_server_url exists ---
 $local_stats = null;
 if (!empty($user["local_server_url"])) {
-    $local_url = rtrim($user["local_server_url"], "/") . "/api/dashboard/stats.php";
+    $local_url = rtrim($user["local_server_url"], "/") . "/stats";
     
     $ch = curl_init($local_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
