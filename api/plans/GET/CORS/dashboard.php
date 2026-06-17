@@ -20,7 +20,7 @@ if (!empty($user["local_server_url"])) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "X-Subscription-Code: " . $user["subscription_code"]
+        "X-User-Email: " . $user["email"]
     ]);
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -70,6 +70,6 @@ echo json_encode([
             "top_goals"   => $user["zara_top_goals"]   ? json_decode($user["zara_top_goals"])   : [],
             "hours"       => $user["zara_hours"]       ? json_decode($user["zara_hours"])       : [],
         ],
-        "stats" => $local_stats, // null if local server unreachable
+        "stats" => $local_stats,
     ],
 ]);
