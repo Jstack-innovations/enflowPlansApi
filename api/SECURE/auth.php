@@ -17,7 +17,7 @@ function authenticate($pdo) {
        logo_url, country, currency, subscription_code,
        zara_credits, zara_credits_used, auth_token_expiry,
        team_members, connected_tools, website, zara_brand_voice,
-       zara_primary_lang, zara_also_speaks, zara_top_goals, zara_hours
+       zara_primary_lang, zara_also_speaks, zara_top_goals, zara_hours, local_server_url
 FROM subscriptions
 WHERE auth_token = :token
 LIMIT 1
