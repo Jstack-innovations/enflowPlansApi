@@ -44,6 +44,7 @@ echo json_encode([
             "country"  => $user["country"],
             "currency" => $user["currency"],
             "website"  => $user["website"],
+            "software_url" => $user["software_url"],
         ],
         "account" => [
             "id"                => $user["id"],
