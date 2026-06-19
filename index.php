@@ -41,7 +41,7 @@ if ($uri === "/accountStatus") {
     exit;
 }
 if ($uri === "/onboardingStatus") {
-    require $basePath . "/plans/GET/get-onboarding-status.php";
+    require $basePath . "/plans/GET/CORS/get-onboarding-status.php";
     exit;
 }
 
