@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit();
 }
 
-require_once __DIR__ . '/../../SECURE/config.php';
+require_once __DIR__ . '/../../../SECURE/config.php';
 
 $body  = json_decode(file_get_contents("php://input"), true);
 $token = trim($body["onboarding_token"] ?? "");
