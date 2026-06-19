@@ -40,6 +40,10 @@ if ($uri === "/accountStatus") {
     require $basePath . "/plans/GET/CORS/accountStatus.php";
     exit;
 }
+if ($uri === "/onboardingStatus") {
+    require $basePath . "/plans/GET/get-onboarding-status.php";
+    exit;
+}
 
 
 /*POST*/
