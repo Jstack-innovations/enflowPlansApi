@@ -80,6 +80,10 @@ if ($uri === "/onboardingBusiness") {
     require $basePath . "/plans/POST/onboarding-business.php";
     exit;
 }
+if ($uri === "/onboardingBusinessType") {
+    require $basePath . "/plans/POST/onboarding-business-type.php";
+    exit;
+}
 if ($uri === "/onboardingTools") {
     require $basePath . "/plans/POST/onboarding-tools.php";
     exit;
