@@ -61,7 +61,7 @@ if ($uri === "/trialSignup") {
     exit;
 }
 if ($uri === "/onboarding") {
-    require $basePath . "/plans/POST/onboarding-validate.php";
+    require $basePath . "/plans/POST/onboarding-welcome.php";
     exit;
 }
 if ($uri === "/onboardingSetPassword") {
