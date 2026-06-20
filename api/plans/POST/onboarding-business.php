@@ -96,7 +96,7 @@ $stmt = $pdo->prepare("
         num_locations   = :num_locations,
         num_staff       = :num_staff,
         logo_url        = COALESCE(:logo_url, logo_url),
-        onboarding_step = 5
+        onboarding_step = 4
     WHERE onboarding_token = :token
 ");
 $stmt->execute([
