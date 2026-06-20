@@ -63,7 +63,7 @@ $stmt = $pdo->prepare("
     UPDATE subscriptions
     SET business_type    = :business_type,
         business_subtype = :business_subtype,
-        onboarding_step  = 6
+        onboarding_step  = 5
     WHERE onboarding_token = :token
 ");
 $stmt->execute([
