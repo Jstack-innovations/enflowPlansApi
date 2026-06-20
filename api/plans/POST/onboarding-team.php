@@ -35,11 +35,20 @@ if (!$user) {
 // Optional — can be empty array to skip
 $team = $body["team"] ?? [];
 
-// Validate each member has at least name and role
+// Validate each member has at least email and role
 foreach ($team as $index => $member) {
-    if (empty($member["name"]) || empty($member["role"])) {
+    $email = trim($member["email"] ?? "");
+    $role  = trim($member["role"] ?? "");
+
+    if (empty($email) || empty($role)) {
         http_response_code(422);
-        echo json_encode(["status" => "error", "message" => "Each team member must have a name and role."]);
+        echo json_encode(["status" => "error", "message" => "Each team member must have an email and role."]);
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(422);
+        echo json_encode(["status" => "error", "message" => "Invalid email address: $email"]);
         exit();
     }
 }
