@@ -32,8 +32,8 @@ if (!$user) {
     exit();
 }
 
-$businessType    = trim($body["business_type"] ?? "");
-$businessSubtype = trim($body["business_subtype"] ?? "");
+$businessType     = trim($body["business_type"] ?? "");
+$businessSubtypes = $body["business_subtypes"] ?? [];
 
 $validTypes = ["restaurant", "fast_food", "lounge_bar", "hotel", "clinic", "ticketing_events"];
 if (!$businessType || !in_array($businessType, $validTypes)) {
@@ -45,16 +45,19 @@ if (!$businessType || !in_array($businessType, $validTypes)) {
 $subtypeRequired = ["restaurant", "fast_food", "lounge_bar"];
 $validSubtypes   = ["dine_in", "takeaway", "delivery", "cloud_kitchen", "multi_branch"];
 
-$subtypeToSave = null;
-if ($businessSubtype && in_array($businessSubtype, $validSubtypes)) {
-    $subtypeToSave = $businessSubtype;
+// Ensure it's an array and filter to valid values only
+if (!is_array($businessSubtypes)) {
+    $businessSubtypes = [];
 }
+$subtypesToSave = array_values(array_filter($businessSubtypes, fn($s) => in_array($s, $validSubtypes)));
 
-if (in_array($businessType, $subtypeRequired) && !$subtypeToSave) {
+if (in_array($businessType, $subtypeRequired) && count($subtypesToSave) === 0) {
     http_response_code(422);
-    echo json_encode(["status" => "error", "message" => "A business sub-type is required for this business type."]);
+    echo json_encode(["status" => "error", "message" => "At least one sub-type is required for this business type."]);
     exit();
 }
+
+$subtypeJson = count($subtypesToSave) > 0 ? json_encode($subtypesToSave) : null;
 
 $stmt = $pdo->prepare("
     UPDATE subscriptions
@@ -65,7 +68,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([
     ":business_type"    => $businessType,
-    ":business_subtype" => $subtypeToSave,
+    ":business_subtype" => $subtypeJson,
     ":token"            => $token,
 ]);
 
@@ -73,4 +76,3 @@ echo json_encode([
     "status"  => "ok",
     "message" => "Business type saved.",
 ]);
-
