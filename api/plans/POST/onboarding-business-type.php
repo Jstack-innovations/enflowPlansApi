@@ -42,11 +42,18 @@ if (!$businessType || !in_array($businessType, $validTypes)) {
     exit();
 }
 
-// Subtype is only valid for types that support it
-$validSubtypes = ["dine_in", "takeaway", "delivery", "cloud_kitchen", "multi_branch"];
+$subtypeRequired = ["restaurant", "fast_food", "lounge_bar"];
+$validSubtypes   = ["dine_in", "takeaway", "delivery", "cloud_kitchen", "multi_branch"];
+
 $subtypeToSave = null;
 if ($businessSubtype && in_array($businessSubtype, $validSubtypes)) {
     $subtypeToSave = $businessSubtype;
+}
+
+if (in_array($businessType, $subtypeRequired) && !$subtypeToSave) {
+    http_response_code(422);
+    echo json_encode(["status" => "error", "message" => "A business sub-type is required for this business type."]);
+    exit();
 }
 
 $stmt = $pdo->prepare("
