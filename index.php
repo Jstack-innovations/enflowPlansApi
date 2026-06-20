@@ -40,11 +40,6 @@ if ($uri === "/accountStatus") {
     require $basePath . "/plans/GET/CORS/accountStatus.php";
     exit;
 }
-if ($uri === "/onboardingStatus") {
-    require $basePath . "/plans/GET/CORS/getOnboardingStatus.php";
-    exit;
-}
-
 
 /*POST*/
 if ($uri === "/verifyAccess") {
@@ -99,6 +94,10 @@ if ($uri === "/onboardingZara") {
 }
 if ($uri === "/onboardingFinalize") {
     require $basePath . "/plans/POST/onboarding-finalize.php";
+    exit;
+}
+if ($uri === "/onboardingStatus") {
+    require $basePath . "/plans/POST/getOnboardingStatus.php";
     exit;
 }
 if ($uri === "/login") {
