@@ -30,13 +30,24 @@ if (strlen($password) < 8) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT id, email, fullname FROM subscriptions WHERE onboarding_token = :token LIMIT 1");
+$stmt = $pdo->prepare("SELECT id, email, fullname, email_status FROM subscriptions WHERE onboarding_token = :token LIMIT 1");
 $stmt->execute([":token" => $token]);
 $user = $stmt->fetch();
 
 if (!$user) {
     http_response_code(404);
     echo json_encode(["status" => "error", "message" => "Invalid or used onboarding token."]);
+    exit();
+}
+
+// Email already verified — don't regenerate OTP / resend email / reset password again.
+// This step is meant to run once; re-submitting after verification should just move them along.
+if ($user["email_status"] === "verified") {
+    echo json_encode([
+        "status"  => "ok",
+        "message" => "Already verified.",
+        "already_verified" => true,
+    ]);
     exit();
 }
 
