@@ -34,11 +34,12 @@ if (!$user) {
 
 // All optional — just save whatever they selected
 $tools = [
-    "pos"        => $body["pos"]        ?? [],
-    "whatsapp"   => $body["whatsapp"]   ?? false,
-    "social"     => $body["social"]     ?? [],
-    "delivery"   => $body["delivery"]   ?? [],
-    "accounting" => $body["accounting"] ?? [],
+    "pos"            => $body["pos"]            ?? [],
+    "whatsapp"       => $body["whatsapp"]       ?? false,
+    "social"         => $body["social"]         ?? [],
+    "google_reviews" => $body["google_reviews"] ?? false,
+    "delivery"       => $body["delivery"]       ?? [],
+    "accounting"     => $body["accounting"]     ?? [],
 ];
 
 $stmt = $pdo->prepare("
