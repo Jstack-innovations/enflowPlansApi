@@ -32,11 +32,11 @@ if (!$user) {
     exit();
 }
 
-$brandVoice  = trim($body["brand_voice"]    ?? "");
+$brandVoice  = trim($body["brand_voice"]      ?? "");
 $primaryLang = trim($body["primary_language"] ?? "");
-$alsoSpeaks  = $body["also_speaks"]  ?? [];
-$topGoals    = $body["top_goals"]    ?? [];
-$hours       = $body["operating_hours"] ?? [];
+$alsoSpeaks  = $body["also_speaks"]     ?? [];   // array — dropdown picks + free text entries
+$topGoals    = $body["top_goals"]       ?? [];   // array — multi-select
+$hours       = $body["operating_hours"] ?? [];   // array — multi-select (e.g. days/blocks)
 
 if (!$brandVoice || !$primaryLang) {
     http_response_code(422);
@@ -44,12 +44,16 @@ if (!$brandVoice || !$primaryLang) {
     exit();
 }
 
-$validVoices = ["friendly", "professional", "casual", "formal", "fun", "pidgin"];
+$validVoices = ["friendly", "professional", "playful", "casual", "formal", "fun", "pidgin"];
 if (!in_array($brandVoice, $validVoices)) {
     http_response_code(422);
     echo json_encode(["status" => "error", "message" => "Invalid brand voice."]);
     exit();
 }
+
+if (!is_array($alsoSpeaks)) { $alsoSpeaks = []; }
+if (!is_array($topGoals))   { $topGoals   = []; }
+if (!is_array($hours))      { $hours      = []; }
 
 $stmt = $pdo->prepare("
     UPDATE subscriptions
