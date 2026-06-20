@@ -101,7 +101,7 @@ if ($uri === "/onboardingFinalize") {
     exit;
 }
 if ($uri === "/onboardingStatus") {
-    require $basePath . "/plans/POST/getOnboardingStatus.php";
+    require $basePath . "/plans/POST/get-onboarding-status.php";
     exit;
 }
 if ($uri === "/login") {
