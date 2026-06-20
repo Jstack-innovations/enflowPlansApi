@@ -83,13 +83,13 @@ $stmt = $pdo->prepare("
         fullname, email, phone, plan,
         status, trial_started_at, trial_ends_at,
         onboarding_token, subscription_code,
-        zara_credits, zara_credits_used, created_at
+        zara_credits, zara_credits_used, onboarding_step, created_at
     )
     VALUES (
         :name, :email, :phone, :plan,
         'trial', :trial_start, :trial_end,
         :token, :sub_code,
-        :zara_credits, 0, NOW()
+        :zara_credits, 0, 1, NOW()
     )
 ");
     $stmt->execute([
