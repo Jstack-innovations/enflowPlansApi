@@ -39,7 +39,8 @@ $stmt = $pdo->prepare("
     SELECT id, fullname AS name, email, phone, status, trial_ends_at, renewal_date, plan,
            username, country, dob, gender,
            business_type AS businessType,
-           business_name AS businessName
+           business_name AS businessName,
+           onboarding_token, onboarding_step
     FROM subscriptions 
     WHERE LOWER(email) = :email OR phone = :phone 
     LIMIT 1
@@ -48,24 +49,28 @@ $stmt->execute([":email" => $email, ":phone" => $phone]);
 $existing = $stmt->fetch();
 
 if ($existing) {
+    $onboardingStep = (int)($existing["onboarding_step"] ?? 0);
+
     echo json_encode([
         "status"  => "existing",
         "message" => "Account found. Please upgrade to continue.",
         "user"    => [
-    "id"            => $existing["id"],
-    "name"          => $existing["name"],
-    "email"         => $existing["email"],
-    "phone"         => $existing["phone"],
-    "status"        => $existing["status"],
-    "trial_ends_at" => $existing["trial_ends_at"],
-    "renewal_date"  => $existing["renewal_date"],
-    "plan"          => $existing["plan"],
-    "username"      => $existing["username"],
-    "country"       => $existing["country"],
-    "dob"           => $existing["dob"],
-    "gender"        => $existing["gender"],
-    "businessType"  => $existing["businessType"],
-    "businessName"  => $existing["businessName"],
+    "id"               => $existing["id"],
+    "name"             => $existing["name"],
+    "email"            => $existing["email"],
+    "phone"            => $existing["phone"],
+    "status"           => $existing["status"],
+    "trial_ends_at"    => $existing["trial_ends_at"],
+    "renewal_date"     => $existing["renewal_date"],
+    "plan"             => $existing["plan"],
+    "username"         => $existing["username"],
+    "country"          => $existing["country"],
+    "dob"              => $existing["dob"],
+    "gender"           => $existing["gender"],
+    "businessType"     => $existing["businessType"],
+    "businessName"     => $existing["businessName"],
+    "onboarding_step"  => $onboardingStep,
+    "onboarding_token" => $onboardingStep < 9 ? $existing["onboarding_token"] : null,
 ],
     ]);
     exit();
