@@ -72,8 +72,6 @@ CREATE TABLE `subscriptions` (
   KEY `idx_sub_phone` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `subscriptions` (`id`, `fullname`, `username`, `email`, `phone`, `password`, `email_status`, `email_otp`, `email_otp_expires`, `country`, `currency`, `num_locations`, `num_staff`, `logo_url`, `connected_tools`, `team_members`, `zara_brand_voice`, `zara_primary_lang`, `zara_also_speaks`, `zara_top_goals`, `zara_hours`, `onboarding_step`, `dob`, `gender`, `business_type`, `business_subtype`, `business_name`, `website`, `plan`, `amount`, `transaction_id`, `status`, `renewal_date`, `created_at`, `subscription_code`, `zara_credits`, `trial_started_at`, `trial_ends_at`, `onboarding_token`, `zara_credits_used`, `low_credit_alert_sent`, `auth_token`, `auth_token_expiry`, `local_server_url`, `software_url`) VALUES
-(27,	'Kendrell',	'blackSams',	'Wsamson650@gmail.com',	'+234 8096831043',	'$2y$10$8.1/kqsdk.Grf/FGtEnyC.JeNWO3psvhKG810phMpMzSrmiZd9Mre',	'verified',	NULL,	NULL,	'Nigeria ',	'NGN',	2,	15,	'/uploads/logos/logo_TRIAL-B07FB584E8.jpg',	'{\"pos\": [\"square\", \"toast\"], \"social\": [\"instagram\", \"facebook\"], \"delivery\": [\"chowdeck\", \"glovo\"], \"whatsapp\": true, \"accounting\": [\"quickbooks\"]}',	'[{\"name\": \"Amaka Obi\", \"role\": \"manager\"}, {\"name\": \"Tunde Bello\", \"role\": \"cashier\"}, {\"name\": \"Ngozi Eze\", \"role\": \"kitchen_staff\"}]',	'friendly',	'English',	'[\"Yoruba\", \"Pidgin\"]',	'[\"increase_orders\", \"reduce_wait_time\", \"automate_whatsapp\"]',	'{\"friday\": {\"open\": \"08:00\", \"close\": \"23:00\"}, \"monday\": {\"open\": \"08:00\", \"close\": \"22:00\"}, \"sunday\": {\"open\": \"10:00\", \"close\": \"20:00\"}, \"tuesday\": {\"open\": \"08:00\", \"close\": \"22:00\"}, \"saturday\": {\"open\": \"09:00\", \"close\": \"23:00\"}, \"thursday\": {\"open\": \"08:00\", \"close\": \"22:00\"}, \"wednesday\": {\"open\": \"08:00\", \"close\": \"22:00\"}}',	9,	'2026-06-02',	'Prefer Not To Say',	'Lounge',	NULL,	'Tty',	'ccjitters.com',	'Web',	49000.00,	'10304279',	'active',	'2026-07-16',	'2026-06-14 08:07:06',	'SUB-A4D843DDF4',	4500,	'2026-06-14 08:07:06',	'2026-06-14 08:07:06',	NULL,	9,	0,	NULL,	NULL,	'https://artisangrills-production.up.railway.app',	'https://admin-artisangrilluxe.vercel.app');
 
 DROP TABLE IF EXISTS `zara_topup_logs`;
 CREATE TABLE `zara_topup_logs` (
@@ -88,15 +86,5 @@ CREATE TABLE `zara_topup_logs` (
   UNIQUE KEY `transaction_id` (`transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `zara_topup_logs` (`id`, `email`, `transaction_id`, `pack_id`, `credits`, `amount`, `created_at`) VALUES
-(6,	'powells@ccjitters.com',	'10255700',	'starter',	500,	52250.00,	'2026-05-27 04:49:06'),
-(7,	'powells@ccjitters.com',	'10264678',	'popular',	3000,	280500.00,	'2026-05-31 05:25:04'),
-(8,	'powells@ccjitters.com',	'10264700',	'starter',	500,	52250.00,	'2026-05-31 06:05:40'),
-(9,	'powells@ccjitters.com',	'10264810',	'starter',	500,	52250.00,	'2026-05-31 07:35:43'),
-(10,	'Wsamson630@gmail.com',	'10265121',	'starter',	500,	52250.00,	'2026-05-31 11:00:36'),
-(11,	'Wsamson630@gmail.com',	'10265153',	'starter',	500,	52250.00,	'2026-05-31 11:20:08'),
-(12,	'powells@ccjitters.com',	'10277370',	'starter',	500,	52250.00,	'2026-06-05 14:30:00'),
-(13,	'Wsamson630@gmail.com',	'10301022',	'starter',	500,	52250.00,	'2026-06-15 13:22:00'),
-(14,	'Wsamson630@gmail.com',	'10301437',	'starter',	500,	52250.00,	'2026-06-15 16:48:40');
 
--- 2026-06-21 09:39:20 UTC
+-- 2026-06-21 20:40:22 UTC
