@@ -120,10 +120,8 @@ if ($uri === "/zaraTopup") {
     require $basePath . "/plans/POST/zara-topup.php";
     exit;
 }
-
-/*PUT*/
 if ($uri === "/countdown") {
-    require $basePath . "/plans/PUT/countdown.php";
+    require $basePath . "/plans/POST/countdown.php";
     exit;
 }
 
