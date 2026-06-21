@@ -87,11 +87,47 @@ sendEmail(
         <p style='margin-bottom:24px;color:#aaaaaa;'>
             Your trial is running. Log in to your dashboard and let Zara get to work.
         </p>
-        <a href='https://getenflowai.online/login' style='display:inline-block;background:linear-gradient(135deg,#d6a86a,#b8864a);color:#0c0602;padding:14px 32px;border-radius:100px;font-weight:700;font-size:13px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;'>
+        <a href='https://dashboard.getenflowai.online' style='display:inline-block;background:linear-gradient(135deg,#d6a86a,#b8864a);color:#0c0602;padding:14px 32px;border-radius:100px;font-weight:700;font-size:13px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;'>
             Go to Dashboard →
         </a>
         <p style='margin-top:32px;color:#555;font-size:11px;'>© 2026 jSTack Innovations · EnflowAI</p>
     </div>
+    "
+);
+
+/* ===== TELEGRAM ALERT ===== */
+$botToken  = getenv("TELEGRAM_BOT_TOKEN");
+$chatId    = getenv("TELEGRAM_CHAT_ID");
+
+$message  = "
+🚀 *New Onboarding Completed!*
+
+👤 *Name:* {$user['fullname']}
+🏢 *Business:* {$user['business_name']}
+📧 *Email:* {$user['email']}
+📦 *Plan:* {$user['plan']}
+✅ *Status:* Trial activated
+";
+$tgUrl     = "https://api.telegram.org/bot{$botToken}/sendMessage";
+$tgPayload = http_build_query(["chat_id" => $chatId, "text" => $message, "parse_mode" => "Markdown"]);
+$ch = curl_init($tgUrl);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $tgPayload);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_exec($ch);
+curl_close($ch);
+
+/* ===== ADMIN ALERT EMAIL ===== */
+sendEmail(
+    "wsamson630@gmail.com",
+    "🚀 New Onboarding Completed: {$user['business_name']}",
+    "
+    <p><strong>Name:</strong> {$user['fullname']}</p>
+    <p><strong>Business:</strong> {$user['business_name']}</p>
+    <p><strong>Email:</strong> {$user['email']}</p>
+    <p><strong>Plan:</strong> {$user['plan']}</p>
+    <p><strong>Status:</strong> Trial activated</p>
     "
 );
 
