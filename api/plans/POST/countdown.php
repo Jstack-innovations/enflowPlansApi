@@ -7,7 +7,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") { http_response_code(200); exit(); }
 if ($_SERVER["REQUEST_METHOD"] !== "POST") { http_response_code(405); exit(); }
 
-require_once __DIR__ . '/../../../SECURE/config.php';
+require_once __DIR__ . '/../../SECURE/config.php';
 
 $body = json_decode(file_get_contents("php://input"), true);
 $localUrl = trim($body["local_server_url"] ?? "");
