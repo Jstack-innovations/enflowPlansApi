@@ -1,0 +1,25 @@
+If server changes places to make changes are listed 
+
+Client Local servers 
+
+For Admins API
+Config.php
+deductCredits.php 
+login.php
+accountStatus.php 
+zara-topup.php
+authGuard.php 
+
+
+Client interface Web
+Config --api.tsx
+Public-- Grilluxxe.html
+
+
+
+
+
+For Central server enflow plans 
+Config.php
+Subscriptions table In central server 
+
