@@ -28,7 +28,7 @@ $stmt->execute([":url" => $localUrl]);
 $sub = $stmt->fetch();
 
 if (!$sub) {
-    http_response_code(404);
+    http_response_code(200);
     echo json_encode(["status" => "expired", "remaining_days" => 0, "remaining_hours" => 0, "remaining_minutes" => 0]);
     exit;
 }
