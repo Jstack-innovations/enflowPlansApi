@@ -21,21 +21,15 @@ if (!$localUrl) {
 $stmt = $pdo->prepare("
     SELECT status, trial_started_at, trial_ends_at, renewal_date
     FROM subscriptions
-    WHERE local_server_url = :url
+    WHERE REPLACE(local_server_url, 'http://', 'https://') = REPLACE(:url, 'http://', 'https://')
     LIMIT 1
 ");
 $stmt->execute([":url" => $localUrl]);
 $sub = $stmt->fetch();
 
 if (!$sub) {
-    // TEMP DEBUG
-    $check = $pdo->query("SELECT local_server_url FROM subscriptions")->fetchAll(PDO::FETCH_COLUMN);
     http_response_code(200);
-    echo json_encode([
-        "status" => "expired",
-        "debug_received" => $localUrl,
-        "debug_all_urls" => $check
-    ]);
+    echo json_encode(["status" => "expired", "remaining_days" => 0, "remaining_hours" => 0, "remaining_minutes" => 0]);
     exit;
 }
 
