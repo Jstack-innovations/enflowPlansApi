@@ -28,8 +28,14 @@ $stmt->execute([":url" => $localUrl]);
 $sub = $stmt->fetch();
 
 if (!$sub) {
+    // TEMP DEBUG
+    $check = $pdo->query("SELECT local_server_url FROM subscriptions")->fetchAll(PDO::FETCH_COLUMN);
     http_response_code(200);
-    echo json_encode(["status" => "expired", "remaining_days" => 0, "remaining_hours" => 0, "remaining_minutes" => 0]);
+    echo json_encode([
+        "status" => "expired",
+        "debug_received" => $localUrl,
+        "debug_all_urls" => $check
+    ]);
     exit;
 }
 
