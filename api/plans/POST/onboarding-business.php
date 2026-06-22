@@ -68,23 +68,44 @@ if (isset($_FILES["logo"]) && $_FILES["logo"]["error"] === UPLOAD_ERR_OK) {
         exit();
     }
 
-    $ext       = pathinfo($file["name"], PATHINFO_EXTENSION);
-    $filename  = "logo_" . $user["subscription_code"] . "." . $ext;
-    $uploadDir = __DIR__ . "/../../uploads/logos/";
+    $cloudName = $_ENV["CLOUDINARY_CLOUD_NAME"] ?? getenv("CLOUDINARY_CLOUD_NAME");
+    $apiKey    = $_ENV["CLOUDINARY_API_KEY"]    ?? getenv("CLOUDINARY_API_KEY");
+    $apiSecret = $_ENV["CLOUDINARY_API_SECRET"] ?? getenv("CLOUDINARY_API_SECRET");
+    $publicId  = "logo_" . $user["subscription_code"];
+    $timestamp = time();
 
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
+    $signature = sha1(
+        "overwrite=true&public_id=" . $publicId . "&timestamp=" . $timestamp . $apiSecret
+    );
 
-    $destination = $uploadDir . $filename;
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_POSTFIELDS     => [
+            "file"      => new CURLFile($file["tmp_name"], $mimeType, $file["name"]),
+            "api_key"   => $apiKey,
+            "timestamp" => $timestamp,
+            "public_id" => $publicId,
+            "overwrite" => "true",
+            "signature" => $signature,
+        ],
+    ]);
 
-    if (!move_uploaded_file($file["tmp_name"], $destination)) {
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $result = json_decode($response, true);
+
+    if (!isset($result["secure_url"])) {
         http_response_code(500);
-        echo json_encode(["status" => "error", "message" => "Failed to save logo. Please try again."]);
+        echo json_encode(["status" => "error", "message" => "Logo upload to Cloudinary failed."]);
         exit();
     }
 
-    $logoUrl = "/uploads/logos/" . $filename;
+    $logoUrl = $result["secure_url"];
 }
 
 $stmt = $pdo->prepare("
